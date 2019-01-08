@@ -1,5 +1,6 @@
 #!/bin/bash
 whoami
+echo PATH=$PATH
 program_name="NewsBot"
 program_workdir="/home/user/programs/$program_name"
 program_workdir_backup="/home/user/programs/$program_name.backup"
