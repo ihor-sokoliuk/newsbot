@@ -36,16 +36,6 @@ then
   	rm -f ${service_file}
   	systemctl daemon-reload
 fi
-if [[ -d ${program_workdir} ]]
-then
-	echo Removing workdir
-    rm -r -f ${program_workdir}
-fi
-if [[ -d ${program_workdir} ]]
-then
-	echo Removing workdir
-    rm -r -f ${program_workdir}
-fi
 echo Clean completed.
 
 echo "---=== Stage 2 ===---"
