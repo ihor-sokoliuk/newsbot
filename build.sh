@@ -17,7 +17,7 @@ if [[ -d ${program_workdir} ]]
 then
 	cp -R $program_workdir $program_workdir_backup
 	rm -r $program_workdir
-    ${backup}=true
+    backup=true
 fi
 if [[ "$backup" == true ]]
 then
@@ -49,8 +49,10 @@ echo "---=== Stage 2 ===---"
 
 echo Build project...
 sed -i 's/{TOKEN}/'$telegram_bot_token'/g' ${program_name}.yml
+echo Dep ensure...
 go get -u github.com/golang/dep/cmd/dep
 dep ensure
+echo Building...
 go build -o ${program_name}
 mkdir -p ${program_workdir}
 cp ${program_name} ${program_workdir}
