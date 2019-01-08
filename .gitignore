@@ -13,3 +13,8 @@
 
 .idea
 *.db
+
+# Vendor folder
+vendor/
+
+*.log

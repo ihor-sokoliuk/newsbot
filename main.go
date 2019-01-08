@@ -3,21 +3,27 @@ package main
 import (
 	"Practicing/news_rss_telegram_bot/helper"
 	"fmt"
-	"github.com/go-errors/errors"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	consts "github.com/ihor-sokoliuk/newsbot/configs"
+	"github.com/ihor-sokoliuk/newsbot/logs"
 	"github.com/mmcdole/gofeed"
-	"log"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"strings"
 	"time"
 )
 
-const token = "627296139:AAHfLC6biwiuLn5cIGNmbaRi5987bn8yCY4"
-const hotNewsRssUrl = "https://24tv.ua/rss/tag/1792.xml"
-const allNewsRssUrl = "https://24tv.ua/rss/all.xml"
+var config Configs
 
-//var channelId int64 = 684861449
+type RssNews struct {
+	Name string
+	URL  string
+}
 
-//const channelName = "@tv_ua_rss_bot"
+type Configs struct {
+	Token   string    `token`
+	RssNews []RssNews `newslist`
+}
 
 type PieceOfNews struct {
 	Title   string
@@ -25,72 +31,58 @@ type PieceOfNews struct {
 	Url     string
 }
 
+func init() {
+	file, err := ioutil.ReadFile(consts.ConfigFileName)
+	logs.HandlePanic(err)
+	err = yaml.Unmarshal(file, &config)
+	logs.HandlePanic(err)
+}
+
 func main() {
-	bot, err := tgbotapi.NewBotAPI(token)
-	if err != nil {
-		log.Print(err)
-	}
+	bot, err := tgbotapi.NewBotAPI(config.Token)
+	logs.HandlePanic(err)
 
 	//bot.Debug = true
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	logs.Info(fmt.Sprintf("Authorized on account %s", bot.Self.UserName))
 
-	go scanningHotRssNews(bot)
-	//go scanningAllRssNews(bot)
+	for _, news := range config.RssNews {
+		go scanningRssNews(bot, news.URL, news.Name)
+	}
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
 	updates, err := bot.GetUpdatesChan(u)
-
+	logs.HandleError(err)
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
 		}
 		err := helper.WriteChannelSubscriptions(helper.ChannelSubscription{ChannelId: update.Message.Chat.ID, HotNewsSubscriptions: true, AllNewsSubscriptions: true})
-		if err != nil {
-			log.Println(errors.Wrap(err, 1))
-		} else {
-			log.Printf("Chat ID was successfully registred: %v", update.Message.Chat.ID)
-			log.Printf("Its message: %v", update.Message.Text)
+
+		if !logs.HandleError(err) {
+			logs.Info(fmt.Sprintf("Chat ID was successfully registred: %v", update.Message.Chat.ID))
+			logs.Info(fmt.Sprintf("Its message: %v", update.Message.Text))
 		}
 		//channelId = update.Message.Chat.ID
 	}
 }
 
-func scanningHotRssNews(bot *tgbotapi.BotAPI) {
-	rssNews, _ := readRssNews(getLastNewsUrl(hotNewsRssUrl), hotNewsRssUrl)
+func scanningRssNews(bot *tgbotapi.BotAPI, newsRssUrl, newsName string) {
+	rssNews, _ := readRssNews(getLastNewsUrl(newsRssUrl), newsRssUrl)
 	for rss := range rssNews {
 		if rss.Message == "" {
 			continue
 		}
-		setLastNewsUrl(hotNewsRssUrl, rss.Url)
+		messageToSend := fmt.Sprintf("*%v*\n\n%v", newsName, rss)
+		setLastNewsUrl(newsRssUrl, rss.Url)
 		hotNewsChannelsIds := readHotNewsSubscribers()
 		for _, channelId := range hotNewsChannelsIds {
-			msg := tgbotapi.NewMessage(channelId, fmt.Sprintf("Рубрика: горячие новости\n%v", rss))
+			msg := tgbotapi.NewMessage(channelId, messageToSend)
 			msg.ParseMode = tgbotapi.ModeMarkdown
-			if _, err := bot.Send(msg); err != nil {
-				log.Println(errors.Wrap(err, 1))
-			}
-		}
-	}
-}
-
-func scanningAllRssNews(bot *tgbotapi.BotAPI) {
-
-	rssNews, _ := readRssNews(getLastNewsUrl(allNewsRssUrl), allNewsRssUrl)
-	for rss := range rssNews {
-		if rss.Message == "" {
-			continue
-		}
-		setLastNewsUrl(allNewsRssUrl, rss.Url)
-		allNewsChannelsIds := readAllNewsSubscribers()
-		for _, channelId := range allNewsChannelsIds {
-			msg := tgbotapi.NewMessage(channelId, fmt.Sprintf("Рубрика: все новости\n%v", rss))
-			msg.ParseMode = tgbotapi.ModeMarkdown
-			if _, err := bot.Send(msg); err != nil {
-				log.Println(errors.Wrap(err, 1))
-			}
+			_, err := bot.Send(msg)
+			logs.HandleError(err)
 		}
 	}
 }
@@ -100,14 +92,14 @@ func readRssNews(lastNewsRss string, newsRssUrl string) (chan PieceOfNews, error
 
 	go func() {
 		for {
+			logs.Info(fmt.Sprintf("Fetching news from %v...", newsRssUrl))
 			feed, err := gofeed.NewParser().ParseURL(newsRssUrl)
-			log.Printf("Fetching news from %v...", newsRssUrl)
-			if err != nil {
-				log.Printf("Failed to get news from %v.\nError: %v.\nRetrying in 10 seconds...", newsRssUrl, err)
+			if logs.HandleError(err) {
+				logs.Info(fmt.Sprintf("Failed to get news from %v.\nError: %v.\nRetrying in 10 seconds...", newsRssUrl, err))
 			}
 			if lastNewsRss != feed.Items[0].Link {
 				// TODO Add news history check
-				log.Printf("Successfully fetched piece of news\nNews title: %v\nNews date: %v\n", feed.Items[0].Title, feed.Items[0].PublishedParsed)
+				logs.Info(fmt.Sprintf("Successfully fetched piece of news\nNews title: %v\nNews date: %v\n", feed.Items[0].Title, feed.Items[0].PublishedParsed))
 				lastNewsRss = feed.Items[0].Link
 				ch <- PieceOfNews{feed.Items[0].Title, feed.Items[0].Description, feed.Items[0].Link}
 			}
@@ -119,7 +111,7 @@ func readRssNews(lastNewsRss string, newsRssUrl string) (chan PieceOfNews, error
 }
 
 func (n PieceOfNews) String() string {
-	return fmt.Sprintf("*%v*\n\n%v\n\n[Читати детальнiше новину...](%v)", n.Title, getMessageDescription(n.Message), n.Url)
+	return fmt.Sprintf("*%v*\n\n%v\n\n[URL](%v)", n.Title, getMessageDescription(n.Message), n.Url)
 }
 
 func getMessageDescription(description string) string {
@@ -140,24 +132,12 @@ func getMessageDescription(description string) string {
 
 func saveHotNewsSubscription(channelIdToSave int64) {
 	err := helper.WriteHotNewsSubscription(channelIdToSave, true)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
-	}
-}
-
-func saveAllNewsSubscription(channelIdToSave int64) {
-	err := helper.WriteAllNewsSubscription(channelIdToSave, true)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
-	}
+	logs.HandleError(err)
 }
 
 func readHotNewsSubscribers() []int64 {
 	channels, err := helper.ReadAllChannelsSubscriptions()
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
-		return nil
-	}
+	logs.HandleError(err)
 
 	resultChannelIdsList := make([]int64, 0, cap(channels))
 
@@ -170,29 +150,9 @@ func readHotNewsSubscribers() []int64 {
 	return resultChannelIdsList
 }
 
-func readAllNewsSubscribers() []int64 {
-	channels, err := helper.ReadAllChannelsSubscriptions()
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
-		return nil
-	}
-
-	resultChannelIdsList := make([]int64, 0, cap(channels))
-
-	for _, channel := range channels {
-		if channel.AllNewsSubscriptions {
-			resultChannelIdsList = append(resultChannelIdsList, channel.ChannelId)
-		}
-	}
-
-	return resultChannelIdsList
-}
-
 func getLastNewsUrl(newsRssUrl string) string {
-	//lastUrl, err := helper.GetConfigByName("Last_News_Url_" + strings.Replace(newsRssUrl, "/", "//", -1))
 	lastUrl, err := helper.GetConfigByName("Last_News_Url_" + newsRssUrl)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
+	if logs.HandleError(err) {
 		return ""
 	}
 	return lastUrl
@@ -200,7 +160,5 @@ func getLastNewsUrl(newsRssUrl string) string {
 
 func setLastNewsUrl(newsRssUrl string, lastNewsUrl string) {
 	err := helper.SetConfigByName("Last_News_Url_"+newsRssUrl, lastNewsUrl)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
-	}
+	logs.HandleError(err)
 }

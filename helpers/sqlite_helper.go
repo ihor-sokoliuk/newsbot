@@ -1,16 +1,12 @@
-package helper
+package helpers
 
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-errors/errors"
+	consts "github.com/ihor-sokoliuk/newsbot/configs"
+	"github.com/ihor-sokoliuk/newsbot/logs"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 )
-
-const UsersTableName = "BotUsers"
-const ConfigTableName = "Configs"
-const NewsHistoryTableName = "NewsHistory"
 
 type ChannelSubscription struct {
 	ChannelId             int64
@@ -21,13 +17,13 @@ type ChannelSubscription struct {
 }
 
 func initDatabase() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./BotUsersSubscriptions.db")
+	db, err := sql.Open("sqlite3", consts.DatabaseFileName)
 	if err != nil {
 		return nil, err
 	}
 
 	sqlStmt := `
-	CREATE TABLE IF NOT EXISTS ` + UsersTableName + ` (
+	CREATE TABLE IF NOT EXISTS ` + consts.UsersTableName + ` (
 		ChannelId INTEGER PRIMARY KEY, 
 		AllNewsSubscription INTEGER, 
 		HotNewsSubscription INTEGER, 
@@ -41,7 +37,7 @@ func initDatabase() (*sql.DB, error) {
 	}
 
 	sqlStmt = `
-	CREATE TABLE IF NOT EXISTS ` + ConfigTableName + ` (
+	CREATE TABLE IF NOT EXISTS ` + consts.ConfigTableName + ` (
 		Setting TEXT PRIMARY KEY,  
 		Value TEXT
 	)
@@ -52,7 +48,7 @@ func initDatabase() (*sql.DB, error) {
 	}
 
 	sqlStmt = `
-	CREATE TABLE IF NOT EXISTS ` + NewsHistoryTableName + ` (
+	CREATE TABLE IF NOT EXISTS ` + consts.NewsHistoryTableName + ` (
 		Id INTEGER PRIMARY KEY,
 		NewsRssUrl TEXT,  
 		NewsUrl TEXT
@@ -73,7 +69,7 @@ func ReadAllChannelIds() ([]int64, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query(fmt.Sprintf("SELECT ChannelId FROM %v", UsersTableName))
+	rows, err := db.Query(fmt.Sprintf("SELECT ChannelId FROM %v", consts.UsersTableName))
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +100,7 @@ func ReadAllChannelsSubscriptions() ([]ChannelSubscription, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query(fmt.Sprintf("SELECT ChannelId, AllNewsSubscription, HotNewsSubscription, WeatherSubscription, CurrencySubscription FROM %v", UsersTableName))
+	rows, err := db.Query(fmt.Sprintf("SELECT ChannelId, AllNewsSubscription, HotNewsSubscription, WeatherSubscription, CurrencySubscription FROM %v", consts.UsersTableName))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +132,7 @@ func ReadChannelSubscriptions(channelId int64) (channelSub ChannelSubscription, 
 	}
 	defer db.Close()
 
-	row := db.QueryRow(fmt.Sprintf("SELECT ChannelId, AllNewsSubscription, HotNewsSubscription, WeatherSubscription, CurrencySubscription FROM %v WHERE ChannelId = %v", UsersTableName, channelId))
+	row := db.QueryRow(fmt.Sprintf("SELECT ChannelId, AllNewsSubscription, HotNewsSubscription, WeatherSubscription, CurrencySubscription FROM %v WHERE ChannelId = %v", consts.UsersTableName, channelId))
 
 	err = row.Scan(&channelSub.ChannelId, &channelSub.AllNewsSubscriptions, &channelSub.HotNewsSubscriptions, &channelSub.WeatherSubscriptions, &channelSub.CurrencySubscriptions)
 	if err != nil {
@@ -148,8 +144,7 @@ func ReadChannelSubscriptions(channelId int64) (channelSub ChannelSubscription, 
 
 func WriteAllNewsSubscription(channelId int64, allNewsSubscription bool) error {
 	channelSub, err := ReadChannelSubscriptions(channelId)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
+	if logs.HandleError(err) {
 		channelSub = ChannelSubscription{ChannelId: channelId}
 	}
 
@@ -164,8 +159,7 @@ func WriteAllNewsSubscription(channelId int64, allNewsSubscription bool) error {
 
 func WriteHotNewsSubscription(channelId int64, hotNewsSubscription bool) error {
 	channelSub, err := ReadChannelSubscriptions(channelId)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
+	if logs.HandleError(err) {
 		channelSub = ChannelSubscription{ChannelId: channelId}
 	}
 
@@ -180,8 +174,7 @@ func WriteHotNewsSubscription(channelId int64, hotNewsSubscription bool) error {
 
 func WriteWeatherSubscription(channelId int64, weatherSubscription bool) error {
 	channelSub, err := ReadChannelSubscriptions(channelId)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
+	if logs.HandleError(err) {
 		channelSub = ChannelSubscription{ChannelId: channelId}
 	}
 
@@ -194,18 +187,17 @@ func WriteWeatherSubscription(channelId int64, weatherSubscription bool) error {
 	return WriteChannelSubscriptions(channelSub)
 }
 
-func WriteCurrencySubscription(channelId int64, weatherSubscription bool) error {
+func WriteCurrencySubscription(channelId int64, currencySubscription bool) error {
 	channelSub, err := ReadChannelSubscriptions(channelId)
-	if err != nil {
-		log.Println(errors.Wrap(err, 1))
+	if logs.HandleError(err) {
 		channelSub = ChannelSubscription{ChannelId: channelId}
 	}
 
-	if channelSub.CurrencySubscriptions == weatherSubscription {
+	if channelSub.CurrencySubscriptions == currencySubscription {
 		return nil
 	}
 
-	channelSub.CurrencySubscriptions = weatherSubscription
+	channelSub.CurrencySubscriptions = currencySubscription
 
 	return WriteChannelSubscriptions(channelSub)
 }
@@ -217,7 +209,7 @@ func WriteChannelSubscriptions(channelSub ChannelSubscription) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec(fmt.Sprintf("INSERT OR REPLACE INTO %v (ChannelId, AllNewsSubscription, HotNewsSubscription, WeatherSubscription, CurrencySubscription) values (%v, %v, %v, %v, %v)", UsersTableName, channelSub.ChannelId, channelSub.AllNewsSubscriptions, channelSub.HotNewsSubscriptions, channelSub.WeatherSubscriptions, channelSub.CurrencySubscriptions))
+	_, err = db.Exec(fmt.Sprintf("INSERT OR REPLACE INTO %v (ChannelId, AllNewsSubscription, HotNewsSubscription, WeatherSubscription, CurrencySubscription) values (%v, %v, %v, %v, %v)", consts.UsersTableName, channelSub.ChannelId, channelSub.AllNewsSubscriptions, channelSub.HotNewsSubscriptions, channelSub.WeatherSubscriptions, channelSub.CurrencySubscriptions))
 	if err != nil {
 		return err
 	}
@@ -232,7 +224,7 @@ func GetConfigByName(setting string) (value string, err error) {
 	}
 	defer db.Close()
 
-	row := db.QueryRow(fmt.Sprintf("SELECT Value FROM %v WHERE Setting = '%v'", ConfigTableName, setting))
+	row := db.QueryRow(fmt.Sprintf("SELECT Value FROM %v WHERE Setting = '%v'", consts.ConfigTableName, setting))
 
 	err = row.Scan(&value)
 	if err != nil {
@@ -246,8 +238,6 @@ func GetConfigByName(setting string) (value string, err error) {
 	return value, nil
 }
 
-
-
 func SetConfigByName(setting string, value string) error {
 	db, err := initDatabase()
 	if err != nil {
@@ -255,7 +245,7 @@ func SetConfigByName(setting string, value string) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec(fmt.Sprintf("INSERT OR REPLACE INTO %v (Setting, Value) values ('%v', '%v')", ConfigTableName, setting, value))
+	_, err = db.Exec(fmt.Sprintf("INSERT OR REPLACE INTO %v (Setting, Value) values ('%v', '%v')", consts.ConfigTableName, setting, value))
 	if err != nil {
 		return err
 	}
@@ -263,19 +253,19 @@ func SetConfigByName(setting string, value string) error {
 	return nil
 }
 
-func IfNewsExistsInHistory(rssUrl, newsUrl string) (bool,error){
+func IfNewsExistsInHistory(rssUrl, newsUrl string) (bool, error) {
 	db, err := initDatabase()
 	if err != nil {
 		return false, err
 	}
 	defer db.Close()
 
-	row := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE NewsRssUrl = '%v' and NewsUrl = '%v'", NewsHistoryTableName, rssUrl, newsUrl))
+	row := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE NewsRssUrl = '%v' and NewsUrl = '%v'", consts.NewsHistoryTableName, rssUrl, newsUrl))
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
-			return false, err
-		}
+		return false, err
+	}
 
 	if count != 0 {
 		return true, nil
@@ -291,7 +281,7 @@ func AddNewsToNewsHistory(rssUrl, newsUrl string) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec(fmt.Sprintf("INSERT INTO %v (NewsRssUrl, NewsUrl) values ('%v', '%v')", NewsHistoryTableName, rssUrl, newsUrl))
+	_, err = db.Exec(fmt.Sprintf("INSERT INTO %v (NewsRssUrl, NewsUrl) values ('%v', '%v')", consts.NewsHistoryTableName, rssUrl, newsUrl))
 	if err != nil {
 		return err
 	}
@@ -306,7 +296,7 @@ func CleanNewsHistoryTable(rssUrl string) error {
 	}
 	defer db.Close()
 
-	row := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE NewsRssUrl = '%v'", NewsHistoryTableName, rssUrl))
+	row := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE NewsRssUrl = '%v'", consts.NewsHistoryTableName, rssUrl))
 	count := 0
 	err = row.Scan(&count)
 	if err != nil {
@@ -314,10 +304,8 @@ func CleanNewsHistoryTable(rssUrl string) error {
 	}
 
 	if count > 1 {
-		_, err = db.Exec(fmt.Sprintf("delete top(%v) from %v", count-100, NewsHistoryTableName))
-		if err != nil {
-			log.Fatal(err)
-		}
+		_, err = db.Exec(fmt.Sprintf("delete top(%v) from %v", count-100, consts.NewsHistoryTableName))
+		logs.HandleError(err)
 	}
 	return nil
 }
