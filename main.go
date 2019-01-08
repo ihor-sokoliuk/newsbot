@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Practicing/news_rss_telegram_bot/helper"
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	consts "github.com/ihor-sokoliuk/newsbot/configs"
@@ -132,12 +131,12 @@ func getMessageDescription(description string) string {
 }
 
 func saveHotNewsSubscription(channelIdToSave int64) {
-	err := helper.WriteHotNewsSubscription(channelIdToSave, true)
+	err := helpers.WriteHotNewsSubscription(channelIdToSave, true)
 	logs.HandleError(err)
 }
 
 func readHotNewsSubscribers() []int64 {
-	channels, err := helper.ReadAllChannelsSubscriptions()
+	channels, err := helpers.ReadAllChannelsSubscriptions()
 	logs.HandleError(err)
 
 	resultChannelIdsList := make([]int64, 0, cap(channels))
@@ -152,7 +151,7 @@ func readHotNewsSubscribers() []int64 {
 }
 
 func getLastNewsUrl(newsRssUrl string) string {
-	lastUrl, err := helper.GetConfigByName("Last_News_Url_" + newsRssUrl)
+	lastUrl, err := helpers.GetConfigByName("Last_News_Url_" + newsRssUrl)
 	if logs.HandleError(err) {
 		return ""
 	}
@@ -160,6 +159,6 @@ func getLastNewsUrl(newsRssUrl string) string {
 }
 
 func setLastNewsUrl(newsRssUrl string, lastNewsUrl string) {
-	err := helper.SetConfigByName("Last_News_Url_"+newsRssUrl, lastNewsUrl)
+	err := helpers.SetConfigByName("Last_News_Url_"+newsRssUrl, lastNewsUrl)
 	logs.HandleError(err)
 }
