@@ -19,7 +19,7 @@ then
 	rm -r $program_workdir
     ${backup}=true
 fi
-if [[ ${backup} == true ]]
+if [[ "$backup" == true ]]
 then
 	echo Backup completed.
 else
@@ -55,7 +55,7 @@ go build -o ${program_name}
 mkdir -p ${program_workdir}
 cp ${program_name} ${program_workdir}
 cp ${program_name}.yml ${program_workdir}
-if [[ ${backup} == true ]]
+if [[ "$backup" == true ]]
 then
 	cp ${program_workdir_backup}/${program_name}.log ${program_workdir}
 	cp ${program_workdir_backup}/${program_name}.db ${program_workdir}
