@@ -1,6 +1,4 @@
 #!/bin/bash
-whoami
-echo PATH=$PATH
 program_name="NewsBot"
 program_workdir="/home/user/programs/$program_name"
 program_workdir_backup="/home/user/programs/$program_name.backup"
@@ -48,11 +46,10 @@ echo Clean completed.
 echo "---=== Stage 2 ===---"
 
 echo Build project...
+mkdir -p $GOPATH/src/github.com/ihor-sokoliuk/newsbot
+ln -sf ${WORKSPACE} ${GOPATH}/src/github.com/ihor-sokoliuk/newsbot
 sed -i 's/{TOKEN}/'$telegram_bot_token'/g' ${program_name}.yml
 echo Dep ensure...
-echo $GOPATH
-ls -l $GOPATH
-ls -l
 go get -u github.com/golang/dep/cmd/dep
 dep ensure
 echo Building...
