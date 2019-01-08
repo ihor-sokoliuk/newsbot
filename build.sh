@@ -54,6 +54,8 @@ echo Build project...
 mkdir -p ${program_workdir}
 cp -a . ${program_workdir}
 cd ${program_workdir}
+ls -l
+pwd
 sed -i 's/{TOKEN}/'$telegram_bot_token'/g' ${program_name}.yml
 echo Dep ensure...
 go get -u github.com/golang/dep/cmd/dep
