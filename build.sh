@@ -81,7 +81,6 @@ KillMode=process
 WantedBy=multi-user.target' >> $service_file"
 
 systemctl daemon-reload
-systemctl enable ${program_name}
 systemctl start ${program_name}
 
 echo Create completed.
