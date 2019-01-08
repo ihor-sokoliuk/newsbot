@@ -1,4 +1,5 @@
 #!/bin/bash
+whoami
 program_name="NewsBot"
 program_workdir="/home/user/programs/$program_name"
 program_workdir_backup="/home/user/programs/$program_name.backup"
@@ -14,6 +15,7 @@ echo Backup project...
 if [[ -d ${program_workdir} ]]
 then
 	cp -R $program_workdir $program_workdir_backup
+	rm -r $program_workdir
     ${backup}=true
 fi
 if [[ ${backup} == true ]]
@@ -45,14 +47,13 @@ echo Clean completed.
 echo "---=== Stage 2 ===---"
 
 echo Build project...
-sed -i 's/{TOKEN}/'$telegram_bot_token'/g' $program_name.yml
+sed -i 's/{TOKEN}/'$telegram_bot_token'/g' ${program_name}.yml
 go get -u github.com/golang/dep/cmd/dep
 dep ensure
 go build -o ${program_name}
 mkdir -p ${program_workdir}
 cp ${program_name} ${program_workdir}
-cp ${program_name} ${program_workdir}
-cp ${program_name} ${program_workdir}
+cp ${program_name}.yml ${program_workdir}
 if [[ ${backup} == true ]]
 then
 	cp ${program_workdir_backup}/${program_name}.log ${program_workdir}
