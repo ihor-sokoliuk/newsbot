@@ -46,8 +46,6 @@ echo Clean completed.
 echo "---=== Stage 2 ===---"
 
 echo Build project...
-mkdir -p $GOPATH/src/github.com/ihor-sokoliuk/newsbot
-ln -sf ${WORKSPACE} ${GOPATH}/src/github.com/ihor-sokoliuk/newsbot
 sed -i 's/{TOKEN}/'$telegram_bot_token'/g' ${program_name}.yml
 echo Dep ensure...
 go get -u github.com/golang/dep/cmd/dep
