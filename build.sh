@@ -72,7 +72,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-StartLimitIntervalSec=10
+WorkingDirectory=$program_workdir
 ExecStart='$program_workdir/$program_name'
 Restart=always
 KillMode=process
