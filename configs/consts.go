@@ -1,6 +1,6 @@
 package configs
 
-const ProjectName = "NewsBot"
+const ProjectName = "newsbot"
 const ConfigFileName = ProjectName + ".yml"
 
 // Database constants
