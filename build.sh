@@ -50,6 +50,8 @@ echo "---=== Stage 2 ===---"
 echo Build project...
 sed -i 's/{TOKEN}/'$telegram_bot_token'/g' ${program_name}.yml
 echo Dep ensure...
+echo $GOPATH
+ls -l $GOPATH
 ls -l
 go get -u github.com/golang/dep/cmd/dep
 dep ensure
