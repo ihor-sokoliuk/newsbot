@@ -1,7 +1,9 @@
 token:  {TOKEN}
 
 newslist:
-  - name: Hot news 24tv.ua
-    url:  https://24tv.ua/rss/tag/1792.xml
-  - name: All news 24tv.ua
-    url:  https://24tv.ua/rss/all.xml
+  - name:       Hot news 24tv.ua
+    url:        https://24tv.ua/rss/tag/1792.xml
+    isEnabled:  true
+  - name:       All news 24tv.ua
+    url:        https://24tv.ua/rss/all.xml
+    isEnabled:  false

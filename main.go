@@ -18,6 +18,7 @@ var config Configs
 type RssNews struct {
 	Name string
 	URL  string
+	IsEnabled bool
 }
 
 type Configs struct {
@@ -47,7 +48,9 @@ func main() {
 	logs.Info(fmt.Sprintf("Authorized on account %s", bot.Self.UserName))
 
 	for _, news := range config.RssNews {
-		go scanningRssNews(bot, news.URL, news.Name)
+		if news.IsEnabled {
+			go scanningRssNews(bot, news.URL, news.Name)
+		}
 	}
 
 	u := tgbotapi.NewUpdate(0)
