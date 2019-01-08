@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	consts "github.com/ihor-sokoliuk/newsbot/configs"
+	"github.com/ihor-sokoliuk/newsbot/helpers"
 	"github.com/ihor-sokoliuk/newsbot/logs"
 	"github.com/mmcdole/gofeed"
 	"gopkg.in/yaml.v2"
@@ -59,7 +60,7 @@ func main() {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
 		}
-		err := helper.WriteChannelSubscriptions(helper.ChannelSubscription{ChannelId: update.Message.Chat.ID, HotNewsSubscriptions: true, AllNewsSubscriptions: true})
+		err := helpers.WriteChannelSubscriptions(helpers.ChannelSubscription{ChannelId: update.Message.Chat.ID, HotNewsSubscriptions: true, AllNewsSubscriptions: true})
 
 		if !logs.HandleError(err) {
 			logs.Info(fmt.Sprintf("Chat ID was successfully registred: %v", update.Message.Chat.ID))
