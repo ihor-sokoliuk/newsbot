@@ -1,4 +1,9 @@
 #!/bin/bash
+project_path="$GOPATH/src/github.com/ihor-sokoliuk/newsbot"
+rm -r -f project_path
+mkdir -p project_path
+cp . ${project_path}
+cd ${project_path}
 echo "Dep ensure..."
 go get -u github.com/golang/dep/cmd/dep
 dep ensure
