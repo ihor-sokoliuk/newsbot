@@ -1,9 +1,9 @@
 token:  {TOKEN}
 
 newslist:
-  - name:       Hot news 24tv.ua
+  - name:       24 Канал - Головні новини
     url:        https://24tv.ua/rss/tag/1792.xml
     isenabled:  true
-  - name:       All news 24tv.ua
-    url:        https://24tv.ua/rss/all.xml
-    isenabled:  false
+  - name:       ЛІГА.Новости
+    url:        https://www.liga.net/news/top/rss.xml
+    isenabled:  true
