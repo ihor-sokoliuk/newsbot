@@ -7,6 +7,7 @@ var ConfigFileName = ProjectName + ".yml"
 
 // Database constants
 var DatabaseFileName = ProjectName + ".db"
+
 const UsersTableName = "BotUsers"
 const ConfigTableName = "Configs"
 const NewsHistoryTableName = "NewsHistory"

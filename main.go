@@ -10,6 +10,7 @@ import (
 	"github.com/mmcdole/gofeed"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,12 +53,40 @@ func main() {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
 		}
-		err := helpers.WriteChannelSubscriptions(helpers.ChannelSubscription{ChannelId: update.Message.Chat.ID, HotNewsSubscriptions: true, AllNewsSubscriptions: true})
 
-		if !logs.HandleError(err) {
-			logs.Info(fmt.Sprintf("Chat ID was successfully registred: %v", update.Message.Chat.ID))
-			logs.Info(fmt.Sprintf("Its message: %v", update.Message.Text))
+		if !update.Message.IsCommand() { // ignore any non-command Messages
+			continue
 		}
+
+		logs.Info(fmt.Sprintf("Recieved a command %v from %v", update.Message.Command(), update.Message.Chat.ID))
+
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+
+		// Extract the command from the Message.
+		if update.Message.Command() == "status" {
+			msg.Text = "It's a status"
+		} else if update.Message.Command() == "list" {
+			msg.Text = "It's a list"
+		} else if update.Message.Command() == "subscription" {
+			msg.Text = "It's a subscription"
+		} else if i := strings.Index(update.Message.Command(), "news"); i > -1 {
+			newsNumber, err := strconv.Atoi(update.Message.Command()[4:])
+			if !logs.HandleError(err) {
+				msg.Text = fmt.Sprintf("It's a news #%v", newsNumber)
+			}
+		} else {
+			msg.Text = "It's a " + configs.ProjectName + " bot\nType /help or /status or /list or /subscription or /0 or /news_0."
+		}
+
+		_, err := bot.Send(msg)
+		logs.HandleError(err)
+
+		//err := helpers.WriteChannelSubscriptions(helpers.ChannelSubscription{ChannelId: update.Message.Chat.ID, HotNewsSubscriptions: true, AllNewsSubscriptions: true})
+
+		//if !logs.HandleError(err) {
+		//	logs.Info(fmt.Sprintf("Chat ID was successfully registred: %v", update.Message.Chat.ID))
+		//	logs.Info(fmt.Sprintf("Its message: %v", update.Message.Text))
+		//}
 		//channelId = update.Message.Chat.ID
 	}
 }

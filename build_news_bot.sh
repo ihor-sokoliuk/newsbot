@@ -1,8 +1,10 @@
 #!/bin/bash
 program_name="$1"
 telegram_bot_token=$2
-program_workdir="$GOPATH/src/github.com/ihor-sokoliuk/$program_name"
-program_workdir_backup="$GOPATH/src/github.com/ihor-sokoliuk/$program_name.backup"
+#program_workdir="$GOPATH/src/github.com/ihor-sokoliuk/$program_name"
+#program_workdir_backup="$GOPATH/src/github.com/ihor-sokoliuk/$program_name.backup"
+program_workdir="/opt/telegram_bot/$program_name"
+program_workdir_backup="$program_workdir.backup"
 service_file="/etc/systemd/system/$program_name.service"
 backup=false
 echo Program name = ${program_name}
