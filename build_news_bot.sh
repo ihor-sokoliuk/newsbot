@@ -3,12 +3,10 @@ echo
 echo Pwd = $(pwd)
 program_name="$1"
 telegram_bot_token=$2
-#program_workdir="$GOPATH/src/github.com/ihor-sokoliuk/$program_name"
-#program_workdir_backup="$GOPATH/src/github.com/ihor-sokoliuk/$program_name.backup"
 program_workdir="/opt/telegram_bot/$program_name"
 program_workdir_backup="$program_workdir.backup"
 service_name=${program_name}.service
-service_file="/etc/systemd/system/$program_name"
+service_file="/etc/systemd/system/$service_name"
 backup=false
 echo Program name = ${program_name}
 echo Program workdir = ${program_workdir}
