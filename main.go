@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	consts "github.com/ihor-sokoliuk/newsbot/configs"
+	"github.com/grokify/html-strip-tags-go"
+	"github.com/ihor-sokoliuk/newsbot/configs"
 	"github.com/ihor-sokoliuk/newsbot/helpers"
 	"github.com/ihor-sokoliuk/newsbot/logs"
 	"github.com/mmcdole/gofeed"
@@ -13,18 +14,7 @@ import (
 	"time"
 )
 
-var config Configs
-
-type RssNews struct {
-	Name string
-	URL  string
-	IsEnabled bool
-}
-
-type Configs struct {
-	Token   string    `token`
-	RssNews []RssNews `newslist`
-}
+var config configs.Configs
 
 type PieceOfNews struct {
 	Title   string
@@ -33,7 +23,7 @@ type PieceOfNews struct {
 }
 
 func init() {
-	file, err := ioutil.ReadFile(consts.ConfigFileName)
+	file, err := ioutil.ReadFile(configs.ConfigFileName)
 	logs.HandlePanic(err)
 	err = yaml.Unmarshal(file, &config)
 	logs.HandlePanic(err)
@@ -127,6 +117,9 @@ func getMessageDescription(description string) string {
 			description = description[i+6 : j-1]
 		}
 	}
+
+	description = strip.StripTags(description)
+
 	if len(description) > 2048 {
 		description = description[:2048] + "..."
 	}
