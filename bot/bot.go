@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"github.com/go-errors/errors"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/ihor-sokoliuk/newsbot/configs"
 	"github.com/ihor-sokoliuk/newsbot/database"
@@ -28,7 +27,7 @@ type Env struct {
 
 func RunBot(env Env) {
 	bot, err := tgbotapi.NewBotAPI(env.Configs.Token)
-	env.Logger.HandlePanic(errors.New("BOT PANIC: " + err.Error()))
+	env.Logger.HandlePanic(err)
 	messageChan = make(chan tgbotapi.MessageConfig)
 
 	//bot.Debug = true
