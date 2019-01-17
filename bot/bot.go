@@ -27,6 +27,10 @@ type Env struct {
 
 func RunBot(env Env) {
 	bot, err := tgbotapi.NewBotAPI(env.Configs.Token)
+	env.Logger.Info(configs.ProjectName)
+	env.Logger.Info(configs.ConfigFileName)
+	env.Logger.Info(configs.DatabaseFileName)
+	env.Logger.Info(env.Configs.Token)
 	env.Logger.HandlePanic(err)
 	messageChan = make(chan tgbotapi.MessageConfig)
 
