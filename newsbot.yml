@@ -1,9 +1,11 @@
-token:  {TOKEN}
+Token: {TOKEN}
 
-newslist:
-  - name:       24 Канал - Головні новини
-    url:        https://24tv.ua/rss/tag/1792.xml
-    isenabled:  true
-  - name:       ЛІГА.Новости
-    url:        https://www.liga.net/news/top/rss.xml
-    isenabled:  true
+NewsList:
+  - Name:       24 Канал - Головні новини
+    URL:        https://24tv.ua/rss/tag/1792.xml
+    IsEnabled:  true
+    ID:         1
+  - Name:       ЛІГА.Новости
+    URL:        https://www.liga.net/news/top/rss.xml
+    IsEnabled:  true
+    ID:         2

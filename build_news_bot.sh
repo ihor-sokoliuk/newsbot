@@ -76,6 +76,7 @@ KillMode=process
 WantedBy=multi-user.target' >> $service_file"
 
 systemctl daemon-reload
+systemctl enable ${service_name}
 systemctl start ${service_name}
 
 echo "Service creates"

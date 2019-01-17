@@ -4,27 +4,36 @@ newslist:
   - name:       Гаджеты - korrespondent.net
     url:        http://k.img.com.ua/rss/ru/gadgets.xml
     isenabled:  true
+    id:         1
   - name:       Интернет и IT - korrespondent.net
     url:        http://k.img.com.ua/rss/ru/web.xml
     isenabled:  true
+    id:         2
   - name:       Новости науки и техники - Информ-UA
     url:        https://inform-ua.info/feed/rss/science
     isenabled:  true
+    id:         3
   - name:       Наука и технологии - Факты
     url:        https://fakty.ua/rss_feed/science
     isenabled:  true
+    id:         4
   - name:       Технологии - Подробности
     url:        http://podrobnosti.ua/rss/feed/?category=tehno
     isenabled:  true
+    id:         5
   - name:       Top news - ЛІГА.Tech
     url:        https://www.liga.net/tech/top/rss.xml
     isenabled:  true
+    id:         6
   - name:       All news - ЛІГА.Tech
     url:        https://www.liga.net/tech/all/rss.xml
     isenabled:  true
+    id:         7
   - name:       Новости ИТ - ITnews
     url:        http://itnews.com.ua/export/all.rss
     isenabled:  true
+    id:         8
   - name:       IT World
     url:        https://www.it-world.ru/lenta/?rss=Y
     isenabled:  true
+    id:         9

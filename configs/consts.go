@@ -1,13 +1,17 @@
 package configs
 
-import "os"
-
-var ProjectName = os.Args[0]
+var ProjectName = "testnewsbot"
 var ConfigFileName = ProjectName + ".yml"
 
 // Database constants
 var DatabaseFileName = ProjectName + ".db"
 
-const UsersTableName = "BotUsers"
+const ChannelSubscriptionsTableName = "ChannelSubscriptions"
 const ConfigTableName = "Configs"
 const NewsHistoryTableName = "NewsHistory"
+
+func InitConfigVariables(projectName string) {
+	ProjectName = projectName
+	ConfigFileName = projectName + ".yml"
+	DatabaseFileName = projectName + ".db"
+}

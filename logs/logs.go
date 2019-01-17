@@ -11,7 +11,11 @@ import (
 	"strings"
 )
 
-func init() {
+type NewsBotLogger struct {
+	log.Logger
+}
+
+func NewLogger(prefix string) *log.Logger {
 	fileRotation := &lumberjack.Logger{
 		Filename:   consts.ProjectName + ".log",
 		MaxSize:    500, // megabytes
@@ -20,31 +24,31 @@ func init() {
 		Compress:   true, // disabled by default
 	}
 	mw := io.MultiWriter(os.Stderr, fileRotation)
-	log.SetOutput(mw)
+	return log.New(mw, prefix, log.Flags())
 }
 
-func HandleError(err error) (wasError bool) {
+func (logger *NewsBotLogger) HandleError(err error) (wasError bool) {
 	if err != nil {
 		// notice that we're using 1, so it will actually log the where
 		// the error happened, 0 = this function, we don't want that.
 		pc, fn, line, _ := runtime.Caller(1)
-		log.Println(fmt.Sprintf("[ERROR]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error()))
+		logger.Println(fmt.Sprintf("[ERROR]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error()))
 		wasError = true
 	}
 	return wasError
 }
 
-func HandlePanic(err error) {
+func (logger *NewsBotLogger) HandlePanic(err error) {
 	if err != nil {
 		pc, fn, line, _ := runtime.Caller(1)
-		log.Println(fmt.Sprintf("[PANIC]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error()))
+		logger.Println(fmt.Sprintf("[PANIC]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error()))
 		panic(err)
 	}
 }
 
-func Info(msg string) {
+func (logger *NewsBotLogger) Info(msg string) {
 	pc, fn, line, _ := runtime.Caller(1)
-	log.Println(fmt.Sprintf("[INFO]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), msg))
+	logger.Println(fmt.Sprintf("[INFO]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), msg))
 }
 
 func cutFilePath(fn string) string {
