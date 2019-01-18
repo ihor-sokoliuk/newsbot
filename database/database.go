@@ -5,6 +5,7 @@ import (
 	"fmt"
 	consts "github.com/ihor-sokoliuk/newsbot/configs"
 	_ "github.com/mattn/go-sqlite3"
+	"strings"
 )
 
 type NewsBotDatabase struct {
@@ -127,9 +128,12 @@ func DeleteNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
 
 func IfUserSubscribedOnNews(db *NewsBotDatabase, chatID, newsID int64) (bool, error) {
 	var count int
-	rows := db.QueryRow(fmt.Sprintf("SELECT * FROM %v WHERE ChatID = %v AND NewsID = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
+	rows := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE ChatID = %v AND NewsID = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
 	err := rows.Scan(&count)
-	return count > 0, err
+	if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
+		return count > 0, nil
+	}
+	return false, err
 }
 
 //func IfNewsExistsInHistory(db *NewsBotDatabase, rssUrl, newsUrl string) (bool, error) {

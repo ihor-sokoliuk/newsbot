@@ -174,16 +174,16 @@ func subscribe(chatId, newsId int64) string {
 	BotEnv.Logger.Info("Subscribe #1")
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	BotEnv.Logger.Info("Subscribe #2")
-	if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
+	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
 		BotEnv.Logger.Info("Subscribe #3")
+		return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
+	} else if !ifSubscribed {
+		BotEnv.Logger.Info("Subscribe #4")
 		err = database.AddNewsSubscriber(BotEnv.Db, chatId, newsId)
 		if !BotEnv.Logger.HandleError(err) {
-			BotEnv.Logger.Info("Subscribe #4")
+			BotEnv.Logger.Info("Subscribe #5")
 			return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
 		}
-	} else if !BotEnv.Logger.HandleError(err) && ifSubscribed {
-		BotEnv.Logger.Info("Subscribe #5")
-		return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
 	}
 	BotEnv.Logger.Info("Subscribe #6")
 	return ""
@@ -193,16 +193,16 @@ func unsubscribe(chatId, newsId int64) string {
 	BotEnv.Logger.Info("Unsubscribe #1")
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	BotEnv.Logger.Info("Unsubscribe #2")
-	if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
-		BotEnv.Logger.Info("Unsubscribe #5")
-		return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
-	} else if !BotEnv.Logger.HandleError(err) && ifSubscribed {
+	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
 		BotEnv.Logger.Info("Unsubscribe #3")
 		err = database.DeleteNewsSubscriber(BotEnv.Db, chatId, newsId)
 		if !BotEnv.Logger.HandleError(err) {
 			BotEnv.Logger.Info("Unsubscribe #4")
 			return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
 		}
+	} else if !ifSubscribed {
+		BotEnv.Logger.Info("Unsubscribe #5")
+		return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
 	}
 	BotEnv.Logger.Info("Unsubscribe #6")
 	return ""
