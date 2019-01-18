@@ -83,7 +83,7 @@ func RunBot(env *Env) {
 }
 
 func validateEnvironmentVariable(env *Env) {
-	if env == nil || BotEnv.Db == nil || BotEnv.Configs == nil || BotEnv.Logger == nil {
+	if env == nil || env.Db == nil || env.Configs == nil || env.Logger == nil {
 		panic("Bot environment parameters validation failed")
 	}
 }
