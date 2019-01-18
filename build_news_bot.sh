@@ -3,7 +3,7 @@ echo
 
 program_name="newsbot"
 telegram_bot_token=
-no_need_in_backup=false
+need_backup=true
 
 while getopts p:t:b: option
 do
@@ -11,7 +11,7 @@ case "${option}"
 in
 p) program_name=${OPTARG};;
 t) telegram_bot_token=${OPTARG};;
-b) no_need_in_backup=${OPTARG};;
+b) need_backup=${OPTARG};;
 esac
 done
 
@@ -19,23 +19,27 @@ program_workdir="/opt/telegram_bot/$program_name"
 program_workdir_backup="$program_workdir.backup"
 service_name=${program_name}.service
 service_file="/etc/systemd/system/$service_name"
-backup=false
 echo Program name = ${program_name}
 echo Program workdir = ${program_workdir}
 echo Service file = ${service_file}
+
+if [[ ! -f program_name ]]
+then
+    echo "$program_name was not built successfully. Abort!"
+    exit 1
+fi
 
 echo "---=== Stage 0 ===---"
 
 echo "Backup project..."
 if [[ -d ${program_workdir} ]]
 then
-    if [[ "$no_need_in_backup" == false ]]
+    if [[ "$need_backup" == true ]]
     then
         cp -R ${program_workdir} ${program_workdir_backup}
         echo "Backup completed."
-        backup=true
     fi
-    
+
 	rm -r ${program_workdir}
 else
     echo "No need in backup."
@@ -63,7 +67,7 @@ mkdir -p ${program_workdir}
 cp ${program_name} ${program_workdir}
 sed -i 's/{TOKEN}/'${telegram_bot_token}'/g' ${program_name}.yml
 cp ${program_name}.yml ${program_workdir}
-if [[ "$backup" == true ]]
+if [[ "$need_backup" == true ]]
 then
     echo "Restoring backup database and logs..."
 	cp ${program_workdir_backup}/${program_name}.log ${program_workdir}
