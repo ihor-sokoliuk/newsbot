@@ -27,12 +27,16 @@ echo Service file = ${service_file}
 echo "---=== Stage 0 ===---"
 
 echo "Backup project..."
-if [[ -d ${program_workdir} && "$no_need_in_backup" == false ]]
+if [[ -d ${program_workdir} ]]
 then
-	cp -R ${program_workdir} ${program_workdir_backup}
+    if [[ "$no_need_in_backup" == false ]]
+    then
+        cp -R ${program_workdir} ${program_workdir_backup}
+        echo "Backup completed."
+        backup=true
+    fi
+    
 	rm -r ${program_workdir}
-	echo "Backup completed."
-    backup=true
 else
     echo "No need in backup."
 fi
