@@ -68,9 +68,9 @@ func RunBot(env *Env) {
 		} else if command == Help {
 			msg.Text = "It's a " + configs.ProjectName + " bot\nType /list to view news list to subscribe on."
 		} else if newsId, err := validateCommand(command, Subscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
-			msg.Text = subscribe(chatId, newsId)
+			msg.Text = subscribe(chatId, newsId) + "\n\n" + generateNewsSubscriptionList(chatId)
 		} else if newsId, err := validateCommand(command, Unsubscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
-			msg.Text = unsubscribe(chatId, newsId)
+			msg.Text = unsubscribe(chatId, newsId) + "\n\n" + generateNewsSubscriptionList(chatId)
 		} else {
 			continue
 		}
@@ -127,6 +127,7 @@ func generateNewsSubscriptionList(channelId int64) string {
 		return ""
 	}
 	var sb strings.Builder
+	sb.WriteString("List of subscriptions:\n")
 m0:
 	for _, rssNews := range BotEnv.Configs.NewsRss {
 		for _, newsID := range newsIDs {
