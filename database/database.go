@@ -31,13 +31,6 @@ func NewDatabase() (*NewsBotDatabase, error) {
 		return nil, err
 	}
 
-	// TODO DON'T FORGET TO REMOVE IT
-	sqlStmt = `DROP TABLE IF EXISTS ` + NewsHistoryTableName
-	_, err = db.Exec(sqlStmt)
-	if err != nil {
-		return nil, err
-	}
-
 	sqlStmt = `
 	CREATE TABLE IF NOT EXISTS ` + NewsHistoryTableName + ` (
 		NewsID INTEGER PRIMARY KEY,
@@ -140,8 +133,8 @@ func DeleteNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
 
 func RowsCount(db *NewsBotDatabase, query string) (int, error) {
 	var count int
-	rows := db.QueryRow(query)
-	err := rows.Scan(&count)
+	row := db.QueryRow(query)
+	err := row.Scan(&count)
 	if err == nil {
 		return count, nil
 	} else if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
