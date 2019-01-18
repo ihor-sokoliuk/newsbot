@@ -101,10 +101,11 @@ func scanningRssNews(rssNews configs.RssNews) {
 	BotEnv.Logger.Info(fmt.Sprintf("Started scanning news for %v-%v(%v)", rssNews.ID, rssNews.Name, rssNews.URL))
 	lastPublishDate, err := database.GetLastPublishOfNews(BotEnv.Db, rssNews.ID)
 	BotEnv.Logger.HandleError(err)
+	lastNewsUrl := ""
 	for {
 		fetchedRssNews, err := readRssNews(rssNews.URL)
-		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" && fetchedRssNews.PublishDate.After(*lastPublishDate) {
-			messageToSend := fmt.Sprintf("*%v*: %v\nDon'y like this news site? /unsubscribe%v", rssNews.Name, fetchedRssNews, rssNews.ID)
+		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" && fetchedRssNews.PublishDate.After(*lastPublishDate) && lastNewsUrl != fetchedRssNews.Url {
+			messageToSend := fmt.Sprintf("*%v*: %v\n\nDon'y like this news site? /unsubscribe%v", rssNews.Name, fetchedRssNews, rssNews.ID)
 			newsSubscribers, err := database.GetNewsSubscribers(BotEnv.Db, rssNews.ID)
 			if !BotEnv.Logger.HandleError(err) {
 				for _, channelId := range newsSubscribers {
@@ -113,6 +114,7 @@ func scanningRssNews(rssNews configs.RssNews) {
 					messageChan <- msg
 				}
 			}
+			lastNewsUrl = fetchedRssNews.Url
 			lastPublishDate = fetchedRssNews.PublishDate
 			err = database.SaveLastPublishOfNews(BotEnv.Db, rssNews.ID, *lastPublishDate)
 			BotEnv.Logger.HandleError(err)
