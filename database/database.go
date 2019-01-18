@@ -182,7 +182,7 @@ func SaveLastPublishOfNews(db *NewsBotDatabase, newsId int64, lastPublish time.T
 		INTO %v 
 			(NewsID, LastPublish) 
 		values 
-			(%v, %v)`,
+			(%v, "%v")`,
 		NewsHistoryTableName, newsId, lastPublish.Format(time.RFC3339)))
 	return err
 }
