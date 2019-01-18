@@ -3,29 +3,27 @@ package bot
 import (
 	"fmt"
 	"github.com/grokify/html-strip-tags-go"
-	"github.com/ihor-sokoliuk/newsbot/database"
 	"github.com/mmcdole/gofeed"
 	"strings"
+	"time"
 )
 
 type PieceOfNews struct {
-	Title   string
-	Message string
-	Url     string
+	Title       string
+	Message     string
+	Url         string
+	PublishDate *time.Time
 }
 
-func readRssNews(newsId int64, newsRssUrl string) (*PieceOfNews, error) {
+func readRssNews(newsRssUrl string) (*PieceOfNews, error) {
 	feed, err := gofeed.NewParser().ParseURL(newsRssUrl)
 	if err != nil {
 		return nil, err
 	}
-	lastNews := feed.Items[0]
-	wasBefore, err := database.IfNewsWasBefore(BotEnv.Db, newsId, lastNews.Link)
-	if !BotEnv.Logger.HandleError(err) && !wasBefore {
-		err = database.SaveNewsLink(BotEnv.Db, newsId, lastNews.Link)
-		if !BotEnv.Logger.HandleError(err) {
-			return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link}, nil
-		}
+
+	if len(feed.Items) > 0 {
+		lastNews := feed.Items[0]
+		return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, lastNews.PublishedParsed}, nil
 	}
 
 	return nil, nil

@@ -99,9 +99,11 @@ func messageSender(bot *tgbotapi.BotAPI) {
 
 func scanningRssNews(rssNews configs.RssNews) {
 	BotEnv.Logger.Info(fmt.Sprintf("Started scanning news for %v-%v(%v)", rssNews.ID, rssNews.Name, rssNews.URL))
+	lastPublishDate, err := database.GetLastPublishOfNews(BotEnv.Db, rssNews.ID)
+	BotEnv.Logger.HandleError(err)
 	for {
-		fetchedRssNews, err := readRssNews(rssNews.ID, rssNews.URL)
-		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" {
+		fetchedRssNews, err := readRssNews(rssNews.URL)
+		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" && fetchedRssNews.PublishDate.After(*lastPublishDate) {
 			messageToSend := fmt.Sprintf("*%v*\n\n%v", rssNews.Name, fetchedRssNews)
 			newsSubscribers, err := database.GetNewsSubscribers(BotEnv.Db, rssNews.ID)
 			if !BotEnv.Logger.HandleError(err) {
@@ -111,6 +113,9 @@ func scanningRssNews(rssNews configs.RssNews) {
 					messageChan <- msg
 				}
 			}
+			lastPublishDate = fetchedRssNews.PublishDate
+			err = database.SaveLastPublishOfNews(BotEnv.Db, rssNews.ID, *lastPublishDate)
+			BotEnv.Logger.HandleError(err)
 		}
 		time.Sleep(time.Second)
 	}

@@ -6,6 +6,7 @@ import (
 	consts "github.com/ihor-sokoliuk/newsbot/configs"
 	_ "github.com/mattn/go-sqlite3"
 	"strings"
+	"time"
 )
 
 const ChannelSubscriptionsTableName = "ChannelSubscriptions"
@@ -31,9 +32,8 @@ func NewDatabase() (*NewsBotDatabase, error) {
 
 	sqlStmt = `
 	CREATE TABLE IF NOT EXISTS ` + NewsHistoryTableName + ` (
-		Id INTEGER PRIMARY KEY,
-		NewsID INTEGER,
-		NewsUrl TEXT
+		NewsID INTEGER PRIMARY KEY,
+		LastPublish TEXT
 	)
 	`
 	_, err = db.Exec(sqlStmt)
@@ -157,45 +157,32 @@ func IfUserSubscribedOnNews(db *NewsBotDatabase, chatID, newsID int64) (bool, er
 	return false, err
 }
 
-func IfNewsWasBefore(db *NewsBotDatabase, newsId int64, newsLink string) (bool, error) {
-	count, err := RowsCount(db, fmt.Sprintf(`
+func GetLastPublishOfNews(db *NewsBotDatabase, newsID int64) (*time.Time, error) {
+	var dt string
+	rows := db.QueryRow(fmt.Sprintf(`
 		SELECT 
-			COUNT(*) 
+			LastPublish 
 		FROM %v 
 		WHERE 
-			NewsURL = %v AND 
 			NewsID = %v`,
-		NewsHistoryTableName, newsLink, newsId))
+		NewsHistoryTableName, newsID))
+	err := rows.Scan(&dt)
 	if err == nil {
-		return count > 0, nil
+		lastPublish, err := time.Parse(dt, time.RFC3339)
+		return &lastPublish, err
+	} else {
+		lastPublish := time.Now().Add(-time.Hour * 24)
+		return &lastPublish, nil
 	}
-	return false, err
 }
 
-func SaveNewsLink(db *NewsBotDatabase, newsId int64, newsLink string) error {
+func SaveLastPublishOfNews(db *NewsBotDatabase, newsId int64, lastPublish time.Time) error {
 	_, err := db.Exec(fmt.Sprintf(`
-		INSERT 
+		REPLACE
 		INTO %v 
-			(NewsURL, NewsID) 
+			(NewsID, LastPublish) 
 		values 
 			(%v, %v)`,
-		NewsHistoryTableName, newsLink, newsId))
-	return err
-}
-
-func CleanNewsHistoryTable(db *NewsBotDatabase, newsId int64) error {
-	count, err := RowsCount(db, fmt.Sprintf(`
-		SELECT 
-			COUNT(*) 
-		FROM %v 
-		WHERE
-			NewsID = %v`,
-		NewsHistoryTableName, newsId))
-	if err == nil && count > 5 {
-		_, err = db.Exec(fmt.Sprintf(`
-			DELETE TOP(%v) 
-			FROM %v`,
-			count-5, NewsHistoryTableName))
-	}
+		NewsHistoryTableName, newsId, lastPublish.Format(time.RFC3339)))
 	return err
 }
