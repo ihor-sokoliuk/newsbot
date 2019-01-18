@@ -23,7 +23,7 @@ echo Program name = ${program_name}
 echo Program workdir = ${program_workdir}
 echo Service file = ${service_file}
 
-if [[ ! -f program_name ]]
+if [[ ! -f ${program_name} ]]
 then
     echo "$program_name was not built successfully. Abort!"
     exit 1
