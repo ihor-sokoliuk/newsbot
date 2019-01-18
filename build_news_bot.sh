@@ -25,6 +25,7 @@ echo Service file = ${service_file}
 
 if [[ ! -f ${program_name} ]]
 then
+    ls -l
     echo "$program_name was not built successfully. Abort!"
     exit 1
 fi
