@@ -31,13 +31,6 @@ func NewDatabase() (*NewsBotDatabase, error) {
 		return nil, err
 	}
 
-	// TODO DON'T FORGET TO REMOVE IT
-	sqlStmt = `DROP TABLE IF EXISTS ` + NewsHistoryTableName
-	_, err = db.Exec(sqlStmt)
-	if err != nil {
-		return nil, err
-	}
-
 	sqlStmt = `
 	CREATE TABLE IF NOT EXISTS ` + NewsHistoryTableName + ` (
 		NewsID INTEGER PRIMARY KEY,
@@ -176,7 +169,7 @@ func GetLastPublishOfNews(db *NewsBotDatabase, newsID int64) (*time.Time, error)
 		NewsHistoryTableName, newsID))
 	err := rows.Scan(&dt)
 	if err == nil {
-		lastPublish, err := time.Parse(dt, time.RFC822Z)
+		lastPublish, err := time.Parse(time.RFC3339, dt)
 		return &lastPublish, err
 	} else {
 		lastPublish := time.Now().Add(-time.Hour * 24)
@@ -191,6 +184,6 @@ func SaveLastPublishOfNews(db *NewsBotDatabase, newsId int64, lastPublish time.T
 			(NewsID, LastPublish) 
 		values 
 			(%v, "%v")`,
-		NewsHistoryTableName, newsId, lastPublish.Format(time.RFC822Z)))
+		NewsHistoryTableName, newsId, lastPublish.Format(time.RFC3339)))
 	return err
 }
