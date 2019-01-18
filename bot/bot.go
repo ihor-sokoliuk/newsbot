@@ -68,9 +68,11 @@ func RunBot(env *Env) {
 			msg.Text = generateNewsSubscriptionList(chatId)
 		} else if command == Help {
 			msg.Text = "It's a " + configs.ProjectName + " bot\nType /list to view news list to subscribe on."
-		} else if newsId, err := validateCommand(command, Subscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
+		} else if newsId, err := validateCommand(command, Subscribe); !BotEnv.Logger.HandleError(err) {
+			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			msg.Text = subscribe(chatId, newsId)
-		} else if newsId, err := validateCommand(command, Unsubscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
+		} else if newsId, err := validateCommand(command, Unsubscribe); !BotEnv.Logger.HandleError(err) {
+			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			msg.Text = unsubscribe(chatId, newsId)
 		} else {
 			continue
@@ -163,24 +165,40 @@ func ifNewsIsAvailable(newsId int64) bool {
 }
 
 func subscribe(chatId, newsId int64) string {
+	BotEnv.Logger.Info("Subscribe #1")
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
+	BotEnv.Logger.Info("Subscribe #2")
 	if !BotEnv.Logger.HandleError(err) && !ifSubscribed {
+		BotEnv.Logger.Info("Subscribe #3")
 		err = database.AddNewsSubscriber(BotEnv.Db, chatId, newsId)
-		return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
+		if !BotEnv.Logger.HandleError(err) {
+			BotEnv.Logger.Info("Subscribe #4")
+			return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
+		}
 	} else if ifSubscribed {
+		BotEnv.Logger.Info("Subscribe #5")
 		return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
 	}
+	BotEnv.Logger.Info("Subscribe #6")
 	return ""
 }
 
 func unsubscribe(chatId, newsId int64) string {
+	BotEnv.Logger.Info("Unsubscribe #1")
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
+	BotEnv.Logger.Info("Unsubscribe #2")
 	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
+		BotEnv.Logger.Info("Unsubscribe #3")
 		err = database.DeleteNewsSubscriber(BotEnv.Db, chatId, newsId)
-		return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
-	} else if ifSubscribed {
+		if !BotEnv.Logger.HandleError(err) {
+			BotEnv.Logger.Info("Unsubscribe #4")
+			return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
+		}
+	} else if !ifSubscribed {
+		BotEnv.Logger.Info("Unsubscribe #5")
 		return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
 	}
+	BotEnv.Logger.Info("Unsubscribe #6")
 	return ""
 }
 
