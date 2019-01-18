@@ -130,8 +130,10 @@ func IfUserSubscribedOnNews(db *NewsBotDatabase, chatID, newsID int64) (bool, er
 	var count int
 	rows := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE ChatID = %v AND NewsID = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
 	err := rows.Scan(&count)
-	if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
+	if err == nil {
 		return count > 0, nil
+	} else if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
+		return false, nil
 	}
 	return false, err
 }

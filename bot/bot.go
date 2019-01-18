@@ -69,10 +69,8 @@ func RunBot(env *Env) {
 		} else if command == Help {
 			msg.Text = "It's a " + configs.ProjectName + " bot\nType /list to view news list to subscribe on."
 		} else if newsId, err := validateCommand(command, Subscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
-			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			msg.Text = subscribe(chatId, newsId)
 		} else if newsId, err := validateCommand(command, Unsubscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
-			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			msg.Text = unsubscribe(chatId, newsId)
 		} else {
 			continue
@@ -142,21 +140,11 @@ m0:
 
 func validateCommand(command, botCommand string) (int64, error) {
 	if i := strings.Index(command, botCommand); i == 0 {
-		BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, nil, i))
 		newsId, err := strconv.ParseInt(command[len(botCommand):], 10, 64)
-		BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
-		if err != nil {
-			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, -1))
-			return -1, err
-		} else {
-			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
-			if ifNewsIsAvailable(newsId) {
-				BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
-				return newsId, nil
-			}
+		if err == nil && ifNewsIsAvailable(newsId) {
+			return newsId, nil
 		}
 	}
-	BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, nil, -1))
 	return -1, nil
 }
 
@@ -171,7 +159,7 @@ func ifNewsIsAvailable(newsId int64) bool {
 }
 
 func subscribe(chatId, newsId int64) string {
-	BotEnv.Logger.Info("Subscribe #1")
+	BotEnv.Logger.Info(fmt.Sprintf("Subscribe #1, ChatID: %v, NewsID: %v", chatId, newsId))
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	BotEnv.Logger.Info("Subscribe #2")
 	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
@@ -190,7 +178,7 @@ func subscribe(chatId, newsId int64) string {
 }
 
 func unsubscribe(chatId, newsId int64) string {
-	BotEnv.Logger.Info("Unsubscribe #1")
+	BotEnv.Logger.Info(fmt.Sprintf("Unsubscribe #1, ChatID: %v, NewsID: %v", chatId, newsId))
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	BotEnv.Logger.Info("Unsubscribe #2")
 	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
