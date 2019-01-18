@@ -105,7 +105,7 @@ func scanningRssNews(rssNews configs.RssNews) {
 	lastUrl := ""
 	for {
 		fetchedRssNews, err := readRssNews(lastUrl, rssNews.URL)
-		if !BotEnv.Logger.HandleError(err) && fetchedRssNews != nil && fetchedRssNews.Message != "" {
+		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" {
 			messageToSend := fmt.Sprintf("*%v*\n\n%v", rssNews.Name, fetchedRssNews)
 			lastUrl = fetchedRssNews.Url
 			newsSubscribers, err := database.GetNewsSubscribers(BotEnv.Db, rssNews.ID)
@@ -142,15 +142,21 @@ m0:
 
 func validateCommand(command, botCommand string) (int64, error) {
 	if i := strings.Index(command, botCommand); i == 0 {
+		BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, nil, i))
 		newsId, err := strconv.ParseInt(command[len(botCommand):], 10, 64)
+		BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 		if err != nil {
+			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			if ifNewsIsAvailable(newsId) {
+				BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 				return newsId, nil
 			}
 		} else {
+			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			return -1, err
 		}
 	}
+	BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, nil, -1))
 	return -1, nil
 }
 
@@ -168,14 +174,14 @@ func subscribe(chatId, newsId int64) string {
 	BotEnv.Logger.Info("Subscribe #1")
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	BotEnv.Logger.Info("Subscribe #2")
-	if !BotEnv.Logger.HandleError(err) && !ifSubscribed {
+	if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
 		BotEnv.Logger.Info("Subscribe #3")
 		err = database.AddNewsSubscriber(BotEnv.Db, chatId, newsId)
 		if !BotEnv.Logger.HandleError(err) {
 			BotEnv.Logger.Info("Subscribe #4")
 			return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
 		}
-	} else if ifSubscribed {
+	} else if !BotEnv.Logger.HandleError(err) && ifSubscribed {
 		BotEnv.Logger.Info("Subscribe #5")
 		return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
 	}
@@ -187,16 +193,16 @@ func unsubscribe(chatId, newsId int64) string {
 	BotEnv.Logger.Info("Unsubscribe #1")
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	BotEnv.Logger.Info("Unsubscribe #2")
-	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
+	if err != nil && strings.Contains(err.Error(), "sql: no rows in result set") {
+		BotEnv.Logger.Info("Unsubscribe #5")
+		return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
+	} else if !BotEnv.Logger.HandleError(err) && ifSubscribed {
 		BotEnv.Logger.Info("Unsubscribe #3")
 		err = database.DeleteNewsSubscriber(BotEnv.Db, chatId, newsId)
 		if !BotEnv.Logger.HandleError(err) {
 			BotEnv.Logger.Info("Unsubscribe #4")
 			return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
 		}
-	} else if !ifSubscribed {
-		BotEnv.Logger.Info("Unsubscribe #5")
-		return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
 	}
 	BotEnv.Logger.Info("Unsubscribe #6")
 	return ""

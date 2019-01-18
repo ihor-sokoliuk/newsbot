@@ -27,12 +27,12 @@ func NewLogger(prefix string) *log.Logger {
 	return log.New(mw, prefix, log.Flags())
 }
 
-func (logger *NewsBotLogger) HandleError(err error) (wasError bool) {
+func (logger *NewsBotLogger) HandleError(err error, args ...interface{}) (wasError bool) {
 	if err != nil {
 		// notice that we're using 1, so it will actually log the where
 		// the error happened, 0 = this function, we don't want that.
 		pc, fn, line, _ := runtime.Caller(1)
-		logger.Println(fmt.Sprintf("[ERROR]\t%s:%d in %s\t%v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error()))
+		logger.Println(fmt.Sprintf("[ERROR]\t%s:%d in %s\t%v. Args: %v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error(), args))
 		wasError = true
 	}
 	return wasError
