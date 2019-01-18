@@ -9,31 +9,35 @@ NewsList:
     URL:        http://k.img.com.ua/rss/ru/web.xml
     IsEnabled:  true
     ID:         2
+  - Name:       Наука и медицина - korrespondent.net
+    URL:        http://k.img.com.ua/rss/ru/tech.xml
+    IsEnabled:  true
+    ID:         3
   - Name:       Новости науки и техники - Информ-UA
     URL:        https://inform-ua.info/feed/rss/science
     IsEnabled:  true
-    ID:         3
+    ID:         4
   - Name:       Наука и технологии - Факты
     URL:        https://fakty.ua/rss_feed/science
     IsEnabled:  true
-    ID:         4
+    ID:         5
   - Name:       Технологии - Подробности
     URL:        http://podrobnosti.ua/rss/feed/?category=tehno
     IsEnabled:  true
-    ID:         5
+    ID:         6
   - Name:       Top news - ЛІГА.Tech
     URL:        https://www.liga.net/tech/top/rss.xml
     IsEnabled:  true
-    ID:         6
+    ID:         7
   - Name:       All news - ЛІГА.Tech
     URL:        https://www.liga.net/tech/all/rss.xml
     IsEnabled:  true
-    ID:         7
+    ID:         8
   - Name:       Новости ИТ - ITnews
     URL:        http://itnews.com.ua/export/all.rss
     IsEnabled:  true
-    ID:         8
+    ID:         9
   - Name:       IT World
     URL:        https://www.it-world.ru/lenta/?rss=Y
     IsEnabled:  true
-    ID:         9
+    ID:         10

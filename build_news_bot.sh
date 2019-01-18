@@ -1,8 +1,20 @@
 #!/bin/bash
 echo
-echo Pwd = $(pwd)
-program_name="$1"
-telegram_bot_token=$2
+
+program_name="newsbot"
+telegram_bot_token=
+no_need_in_backup=false
+
+while getopts p:t:b: option
+do
+case "${option}"
+in
+p) program_name=${OPTARG};;
+t) telegram_bot_token=${OPTARG};;
+b) no_need_in_backup=${OPTARG};;
+esac
+done
+
 program_workdir="/opt/telegram_bot/$program_name"
 program_workdir_backup="$program_workdir.backup"
 service_name=${program_name}.service
@@ -15,7 +27,7 @@ echo Service file = ${service_file}
 echo "---=== Stage 0 ===---"
 
 echo "Backup project..."
-if [[ -d ${program_workdir} ]]
+if [[ -d ${program_workdir} && "$no_need_in_backup" == false ]]
 then
 	cp -R ${program_workdir} ${program_workdir_backup}
 	rm -r ${program_workdir}

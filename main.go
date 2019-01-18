@@ -35,5 +35,5 @@ func main() {
 		Logger:  newsBotLogger,
 		Configs: &config,
 	}
-	bot.RunBot(env)
+	bot.RunBot(&env)
 }
