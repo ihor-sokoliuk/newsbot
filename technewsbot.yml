@@ -1,19 +1,19 @@
 Token: {TOKEN}
 
 NewsList:
-  - Name:       Гаджеты - korrespondent.net
+  - Name:       Гаджеты - Корреспондент
     URL:        http://k.img.com.ua/rss/ru/gadgets.xml
     IsEnabled:  true
     ID:         1
-  - Name:       Интернет и IT - korrespondent.net
+  - Name:       Интернет и IT - Корреспондент
     URL:        http://k.img.com.ua/rss/ru/web.xml
     IsEnabled:  true
     ID:         2
-  - Name:       Наука и медицина - korrespondent.net
+  - Name:       Наука и медицина - Корреспондент
     URL:        http://k.img.com.ua/rss/ru/tech.xml
     IsEnabled:  true
     ID:         3
-  - Name:       Новости науки и техники - Информ-UA
+  - Name:       Новости науки и техники - Информ-ЮА
     URL:        https://inform-ua.info/feed/rss/science
     IsEnabled:  true
     ID:         4

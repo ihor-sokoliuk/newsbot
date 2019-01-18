@@ -60,7 +60,6 @@ func RunBot(env *Env) {
 
 		chatId := update.Message.Chat.ID
 		command := update.Message.Command()
-		BotEnv.Logger.Info(fmt.Sprintf("Recieved a command %v from %v", command, chatId))
 		msg := tgbotapi.NewMessage(chatId, "")
 
 		// Read a command
@@ -100,12 +99,10 @@ func messageSender(bot *tgbotapi.BotAPI) {
 
 func scanningRssNews(rssNews configs.RssNews) {
 	BotEnv.Logger.Info(fmt.Sprintf("Started scanning news for %v-%v(%v)", rssNews.ID, rssNews.Name, rssNews.URL))
-	lastUrl := ""
 	for {
-		fetchedRssNews, err := readRssNews(lastUrl, rssNews.URL)
+		fetchedRssNews, err := readRssNews(rssNews.ID, rssNews.URL)
 		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" {
 			messageToSend := fmt.Sprintf("*%v*\n\n%v", rssNews.Name, fetchedRssNews)
-			lastUrl = fetchedRssNews.Url
 			newsSubscribers, err := database.GetNewsSubscribers(BotEnv.Db, rssNews.ID)
 			if !BotEnv.Logger.HandleError(err) {
 				for _, channelId := range newsSubscribers {
@@ -159,59 +156,31 @@ func ifNewsIsAvailable(newsId int64) bool {
 }
 
 func subscribe(chatId, newsId int64) string {
-	BotEnv.Logger.Info(fmt.Sprintf("Subscribe #1, ChatID: %v, NewsID: %v", chatId, newsId))
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
-	BotEnv.Logger.Info("Subscribe #2")
-	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
-		BotEnv.Logger.Info("Subscribe #3")
-		return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
-	} else if !ifSubscribed {
-		BotEnv.Logger.Info("Subscribe #4")
-		err = database.AddNewsSubscriber(BotEnv.Db, chatId, newsId)
-		if !BotEnv.Logger.HandleError(err) {
-			BotEnv.Logger.Info("Subscribe #5")
-			return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
+	if !BotEnv.Logger.HandleError(err) {
+		if ifSubscribed {
+			return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
+		} else {
+			err = database.AddNewsSubscriber(BotEnv.Db, chatId, newsId)
+			if !BotEnv.Logger.HandleError(err) {
+				return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
+			}
 		}
 	}
-	BotEnv.Logger.Info("Subscribe #6")
 	return ""
 }
 
 func unsubscribe(chatId, newsId int64) string {
-	BotEnv.Logger.Info(fmt.Sprintf("Unsubscribe #1, ChatID: %v, NewsID: %v", chatId, newsId))
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
-	BotEnv.Logger.Info("Unsubscribe #2")
-	if !BotEnv.Logger.HandleError(err) && ifSubscribed {
-		BotEnv.Logger.Info("Unsubscribe #3")
-		err = database.DeleteNewsSubscriber(BotEnv.Db, chatId, newsId)
-		if !BotEnv.Logger.HandleError(err) {
-			BotEnv.Logger.Info("Unsubscribe #4")
-			return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
+	if !BotEnv.Logger.HandleError(err) {
+		if ifSubscribed {
+			err = database.DeleteNewsSubscriber(BotEnv.Db, chatId, newsId)
+			if !BotEnv.Logger.HandleError(err) {
+				return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
+			}
+		} else {
+			return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
 		}
-	} else if !ifSubscribed {
-		BotEnv.Logger.Info("Unsubscribe #5")
-		return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
 	}
-	BotEnv.Logger.Info("Unsubscribe #6")
 	return ""
 }
-
-//func saveHotNewsSubscription(channelIdToSave int64) {
-//	err := database.WriteHotNewsSubscription(channelIdToSave, true)
-//	Logger.HandleError(err)
-//}
-//
-//func readHotNewsSubscribers() []int64 {
-//	channels, err := database.ReadAllChannelsSubscriptions()
-//	Logger.HandleError(err)
-//
-//	resultChannelIdsList := make([]int64, 0, cap(channels))
-//
-//	for _, channel := range channels {
-//		if channel.HotNewsSubscriptions {
-//			resultChannelIdsList = append(resultChannelIdsList, channel.ChannelId)
-//		}
-//	}
-//
-//	return resultChannelIdsList
-//}
