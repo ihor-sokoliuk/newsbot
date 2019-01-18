@@ -17,7 +17,7 @@ func NewDatabase() (*NewsBotDatabase, error) {
 	CREATE TABLE IF NOT EXISTS ` + consts.ChannelSubscriptionsTableName + ` (
 		ID INTEGER PRIMARY KEY, 
 		ChatID INTEGER, 
-		NewsId INTEGER
+		NewsID INTEGER
 	)
 	`
 	_, err = db.Exec(sqlStmt)
@@ -54,7 +54,7 @@ func NewDatabase() (*NewsBotDatabase, error) {
 func GetChannelSubscriptions(db *NewsBotDatabase, chatID int64) ([]int64, error) {
 	rows, err := db.Query(fmt.Sprintf(`
 	SELECT 
-		NewsId 
+		NewsID 
 	FROM %v 
 	WHERE 
 		ChatID = %v`,
@@ -89,7 +89,7 @@ func GetNewsSubscribers(db *NewsBotDatabase, newsID int64) ([]int64, error) {
 		ChatID 
 	FROM %v 
 	WHERE 
-		NewsId = %v`,
+		NewsID = %v`,
 		consts.ChannelSubscriptionsTableName, newsID))
 	if err != nil {
 		return nil, err
@@ -116,18 +116,18 @@ func GetNewsSubscribers(db *NewsBotDatabase, newsID int64) ([]int64, error) {
 }
 
 func AddNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
-	_, err := db.Exec(fmt.Sprintf("INSERT INTO %v (ChatID, NewsId) values (%v, %v)", consts.ChannelSubscriptionsTableName, chatID, newsID))
+	_, err := db.Exec(fmt.Sprintf("INSERT INTO %v (ChatID, NewsID) values (%v, %v)", consts.ChannelSubscriptionsTableName, chatID, newsID))
 	return err
 }
 
 func DeleteNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
-	_, err := db.Exec(fmt.Sprintf("DELETE FROM %v WHERE ChatID = %v AND NewsId = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
+	_, err := db.Exec(fmt.Sprintf("DELETE FROM %v WHERE ChatID = %v AND NewsID = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
 	return err
 }
 
 func IfUserSubscribedOnNews(db *NewsBotDatabase, chatID, newsID int64) (bool, error) {
 	var count int
-	rows := db.QueryRow(fmt.Sprintf("SELECT * FROM %v WHERE ChatID = %v AND NewsId = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
+	rows := db.QueryRow(fmt.Sprintf("SELECT * FROM %v WHERE ChatID = %v AND NewsID = %v", consts.ChannelSubscriptionsTableName, chatID, newsID))
 	err := rows.Scan(&count)
 	return count > 0, err
 }
