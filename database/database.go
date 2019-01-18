@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	consts "github.com/ihor-sokoliuk/newsbot/configs"
 	_ "github.com/mattn/go-sqlite3"
@@ -25,6 +26,13 @@ func NewDatabase() (*NewsBotDatabase, error) {
 		NewsID INTEGER
 	)
 	`
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO DON'T FORGET TO REMOVE IT
+	sqlStmt = `DROP TABLE IF EXISTS ` + NewsHistoryTableName
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
@@ -172,7 +180,7 @@ func GetLastPublishOfNews(db *NewsBotDatabase, newsID int64) (*time.Time, error)
 		return &lastPublish, err
 	} else {
 		lastPublish := time.Now().Add(-time.Hour * 24)
-		return &lastPublish, nil
+		return &lastPublish, errors.New("No last pub date for news #" + string(newsID))
 	}
 }
 
