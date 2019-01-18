@@ -23,7 +23,11 @@ func readRssNews(newsRssUrl string) (*PieceOfNews, error) {
 
 	if len(feed.Items) > 0 {
 		lastNews := feed.Items[0]
-		return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, lastNews.PublishedParsed}, nil
+		if lastNews.PublishedParsed != nil {
+			return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, lastNews.PublishedParsed}, nil
+		} else if feed.UpdatedParsed != nil {
+			return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, feed.UpdatedParsed}, nil
+		}
 	}
 
 	return nil, nil

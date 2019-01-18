@@ -54,7 +54,7 @@ func (logger *NewsBotLogger) HandlePanic(err error, args ...interface{}) {
 
 func (logger *NewsBotLogger) Info(msg string, args ...interface{}) {
 	pc, fn, line, _ := runtime.Caller(1)
-	logger.Println(fmt.Sprintf("%.9v:%v\t%s:%d in %s\t%v", "[INFO]", getGID(), cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), msg))
+	logger.Println(fmt.Sprintf("%.9v:\t%s:%d in %s\t%v", "[INFO]", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), msg))
 }
 
 func cutFilePath(fn string) string {
@@ -69,6 +69,7 @@ func cutMethodPath(method string) string {
 	return method[strings.LastIndex(method, "/")+1:]
 }
 
+// Get goroutine ID
 func getGID() uint64 {
 	b := make([]byte, 64)
 	b = b[:runtime.Stack(b, false)]

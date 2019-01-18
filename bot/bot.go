@@ -152,7 +152,7 @@ func validateCommand(command, botCommand string) (int64, error) {
 
 func ifNewsIsAvailable(newsId int64) bool {
 	for _, newsRss := range BotEnv.Configs.NewsRss {
-		if newsRss.ID == newsId {
+		if newsRss.ID == newsId && newsRss.IsEnabled {
 			return true
 		}
 	}
