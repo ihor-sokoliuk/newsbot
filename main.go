@@ -35,5 +35,10 @@ func main() {
 		Logger:  newsBotLogger,
 		Configs: &config,
 	}
+
+	newsBotLogger.Info("Project: " + configs.ProjectName)
+	newsBotLogger.Info("Database: " + configs.DatabaseFileName)
+	newsBotLogger.Info("Config file: " + configs.ConfigFileName)
+
 	bot.RunBot(&env)
 }

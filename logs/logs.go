@@ -32,7 +32,11 @@ func (logger *NewsBotLogger) HandleError(err error, args ...interface{}) (wasErr
 		// notice that we're using 1, so it will actually log the where
 		// the error happened, 0 = this function, we don't want that.
 		pc, fn, line, _ := runtime.Caller(1)
-		logger.Println(fmt.Sprintf("[ERROR]\t%s:%d in %s\t%v. Args: %v", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error(), args))
+		errorMsg := fmt.Sprintf("[ERROR]\t%s:%d in %s\t%v.", cutFilePath(fn), line, runtime.FuncForPC(pc).Name(), err.Error())
+		if len(args) > 0 {
+			errorMsg = fmt.Sprintf("%v Args: %v", errorMsg, args)
+		}
+		logger.Println(errorMsg)
 		wasError = true
 	}
 	return wasError

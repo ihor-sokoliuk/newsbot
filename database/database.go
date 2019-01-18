@@ -180,7 +180,7 @@ func GetLastPublishOfNews(db *NewsBotDatabase, newsID int64) (*time.Time, error)
 		return &lastPublish, err
 	} else {
 		lastPublish := time.Now().Add(-time.Hour * 24)
-		return &lastPublish, errors.New("No last pub date for news #" + string(newsID))
+		return &lastPublish, errors.New(fmt.Sprintf("No last pub date for news #%v", newsID))
 	}
 }
 
