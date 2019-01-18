@@ -104,7 +104,7 @@ func scanningRssNews(rssNews configs.RssNews) {
 	for {
 		fetchedRssNews, err := readRssNews(rssNews.URL)
 		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" && fetchedRssNews.PublishDate.After(*lastPublishDate) {
-			messageToSend := fmt.Sprintf("*%v*\n\n%v", rssNews.Name, fetchedRssNews)
+			messageToSend := fmt.Sprintf("*%v*: %v\nDon'y like this news site? /unsubscribe%v", rssNews.Name, fetchedRssNews, rssNews.ID)
 			newsSubscribers, err := database.GetNewsSubscribers(BotEnv.Db, rssNews.ID)
 			if !BotEnv.Logger.HandleError(err) {
 				for _, channelId := range newsSubscribers {

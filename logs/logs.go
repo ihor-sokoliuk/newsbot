@@ -34,7 +34,7 @@ func (logger *NewsBotLogger) HandleError(err error, args ...interface{}) (wasErr
 		// notice that we're using 1, so it will actually log the where
 		// the error happened, 0 = this function, we don't want that.
 		pc, fn, line, _ := runtime.Caller(1)
-		errorMsg := fmt.Sprintf("%.9v\t%s:%d in %s\t%v.", "[ERROR]", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), err.Error())
+		errorMsg := fmt.Sprintf("[ERROR]  %s:%d in %s\t%v.", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), err.Error())
 		if len(args) > 0 {
 			errorMsg = fmt.Sprintf("%v Args: %v", errorMsg, args)
 		}
@@ -47,14 +47,14 @@ func (logger *NewsBotLogger) HandleError(err error, args ...interface{}) (wasErr
 func (logger *NewsBotLogger) HandlePanic(err error, args ...interface{}) {
 	if err != nil {
 		pc, fn, line, _ := runtime.Caller(1)
-		logger.Println(fmt.Sprintf("%.9v\t%s:%d in %s\t%v", "[PANIC]", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), err.Error()))
+		logger.Println(fmt.Sprintf("[PANIC]  %s:%d in %s\t%v", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), err.Error()))
 		panic(err)
 	}
 }
 
 func (logger *NewsBotLogger) Info(msg string, args ...interface{}) {
 	pc, fn, line, _ := runtime.Caller(1)
-	logger.Println(fmt.Sprintf("%.9v\t%s:%d in %s\t%v", "[INFO]", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), msg))
+	logger.Println(fmt.Sprintf("[INFO]   %s:%d in %s\t%v", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), msg))
 }
 
 func cutFilePath(fn string) string {
