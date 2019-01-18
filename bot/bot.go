@@ -146,14 +146,14 @@ func validateCommand(command, botCommand string) (int64, error) {
 		newsId, err := strconv.ParseInt(command[len(botCommand):], 10, 64)
 		BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 		if err != nil {
+			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, -1))
+			return -1, err
+		} else {
 			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 			if ifNewsIsAvailable(newsId) {
 				BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
 				return newsId, nil
 			}
-		} else {
-			BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, err, newsId))
-			return -1, err
 		}
 	}
 	BotEnv.Logger.Info(fmt.Sprintf("\nCommand: %v\nErr: %v\nNewsId: %v", command, nil, -1))
