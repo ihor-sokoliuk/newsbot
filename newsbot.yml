@@ -19,7 +19,7 @@ NewsList:
     ID:         4
   - Name:       Украинская правда
     URL:        https://www.pravda.com.ua/rus/rss/view_mainnews/
-    IsEnabled:  true
+    IsEnabled:  false
     ID:         5
   - Name:       РБК-Украина
     URL:        https://www.rbc.ua/static/rss/ukrnet.strong.rus.rss.xml
