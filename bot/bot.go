@@ -14,6 +14,7 @@ import (
 const (
 	List        = "list"
 	Help        = "help"
+	Start       = "start"
 	Subscribe   = "subscribe"
 	Unsubscribe = "unsubscribe"
 )
@@ -65,8 +66,8 @@ func RunBot(env *Env) {
 		// Read a command
 		if command == List {
 			msg.Text = generateNewsSubscriptionList(chatId)
-		} else if command == Help {
-			msg.Text = "It's a " + configs.ProjectName + " bot\nType /list to view news list to subscribe on."
+		} else if command == Help || command == Start {
+			msg.Text = "It's " + configs.ProjectName + "\nType /list to view news list to subscribe on."
 		} else if newsId, err := validateCommand(command, Subscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
 			msg.Text = subscribe(chatId, newsId) + "\n\n" + generateNewsSubscriptionList(chatId)
 		} else if newsId, err := validateCommand(command, Unsubscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
@@ -105,7 +106,7 @@ func scanningRssNews(rssNews configs.RssNews) {
 	for {
 		fetchedRssNews, err := readRssNews(rssNews.URL)
 		if !BotEnv.Logger.HandleError(err, rssNews.ID, rssNews.Name, rssNews.URL) && fetchedRssNews != nil && fetchedRssNews.Message != "" && fetchedRssNews.PublishDate.After(*lastPublishDate) && lastNewsUrl != fetchedRssNews.Url {
-			messageToSend := fmt.Sprintf("*%v*: %v\n\nDon'y like this news site? /unsubscribe%v", rssNews.Name, fetchedRssNews, rssNews.ID)
+			messageToSend := fmt.Sprintf("*%v*: %v\n\nDon't like this news site? /unsubscribe%v", rssNews.Name, fetchedRssNews, rssNews.ID)
 			newsSubscribers, err := database.GetNewsSubscribers(BotEnv.Db, rssNews.ID)
 			if !BotEnv.Logger.HandleError(err) {
 				for _, channelId := range newsSubscribers {
@@ -167,11 +168,11 @@ func subscribe(chatId, newsId int64) string {
 	ifSubscribed, err := database.IfUserSubscribedOnNews(BotEnv.Db, chatId, newsId)
 	if !BotEnv.Logger.HandleError(err) {
 		if ifSubscribed {
-			return fmt.Sprintf("You are already subsribed on newsRss #%v", newsId)
+			return fmt.Sprintf("You are already subsribed on %v", getNewsNameById(newsId))
 		} else {
 			err = database.AddNewsSubscriber(BotEnv.Db, chatId, newsId)
 			if !BotEnv.Logger.HandleError(err) {
-				return fmt.Sprintf("Subscribed on newsRss #%v", newsId)
+				return fmt.Sprintf("Subscribed on %v", getNewsNameById(newsId))
 			}
 		}
 	}
@@ -184,11 +185,19 @@ func unsubscribe(chatId, newsId int64) string {
 		if ifSubscribed {
 			err = database.DeleteNewsSubscriber(BotEnv.Db, chatId, newsId)
 			if !BotEnv.Logger.HandleError(err) {
-				return fmt.Sprintf("Unsubscribed from newsRss #%v", newsId)
+				return fmt.Sprintf("Unsubscribed from %v", getNewsNameById(newsId))
 			}
 		} else {
-			return fmt.Sprintf("You are already unsubsribed from newsRss #%v", newsId)
+			return fmt.Sprintf("You are already unsubsribed from #%v", getNewsNameById(newsId))
 		}
 	}
 	return ""
+}
+
+func getNewsNameById(id int64) string {
+	for _, news := range BotEnv.Configs.NewsRss {
+		if news.ID == id {
+			return news.Name
+		}
+	}
 }

@@ -35,14 +35,44 @@ func readRssNews(newsRssUrl string) (*PieceOfNews, error) {
 
 // TODO: Improve formatting description for all types of news rss
 func getMessageDescription(description string) string {
-	description = strings.Replace(description, "\r\n", "", -1)
+
+	description = strings.Replace(description, "\r\n\r\n", "\r\n", -1)
+	description = strings.Replace(description, "\r\r", "\r", -1)
+	description = strings.Replace(description, "\n\n", "\n", -1)
+
 	if i := strings.Index(description, "'>"); i != -1 {
 		description = description[i+2:]
 	}
+
 	if i := strings.Index(description, "<body>"); i != -1 {
 		if j := strings.Index(description, "<p>"); j != -1 {
 			description = description[i+6 : j-1]
 		}
+	}
+
+	if i := strings.Index(description, "<!CDATA["); i != -1 {
+		if j := strings.Index(description, "]>"); j != -1 {
+			description = description[i+8 : j-1]
+		}
+	}
+
+	if strings.HasPrefix(description, "\r\n") {
+		description = description[2:]
+	}
+	if strings.HasPrefix(description, "\r") {
+		description = description[1:]
+	}
+	if strings.HasPrefix(description, "\n") {
+		description = description[1:]
+	}
+	if strings.HasSuffix(description, "\r\n") {
+		description = description[:len(description)-2]
+	}
+	if strings.HasSuffix(description, "\r") {
+		description = description[:len(description)-1]
+	}
+	if strings.HasSuffix(description, "\n") {
+		description = description[:len(description)-1]
 	}
 
 	description = strip.StripTags(description)
@@ -55,5 +85,5 @@ func getMessageDescription(description string) string {
 
 func (n PieceOfNews) String() string {
 	// Message with news
-	return fmt.Sprintf("*%v*\n\n%v\n[ -= Link =- ](%v)", n.Title, getMessageDescription(n.Message), n.Url)
+	return fmt.Sprintf("*%v*\n\n%v\n[Read more...](%v)", n.Title, getMessageDescription(n.Message), n.Url)
 }

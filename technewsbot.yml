@@ -1,39 +1,39 @@
 Token: {TOKEN}
 
 NewsList:
-  - Name:       Гаджеты - Корреспондент
+  - Name:       Корреспондент - Гаджеты
     URL:        http://k.img.com.ua/rss/ru/gadgets.xml
     IsEnabled:  true
     ID:         1
-  - Name:       Интернет и IT - Корреспондент
+  - Name:       Корреспондент - Интернет и IT
     URL:        http://k.img.com.ua/rss/ru/web.xml
     IsEnabled:  true
     ID:         2
-  - Name:       Наука и медицина - Корреспондент
+  - Name:       Корреспондент - Наука и медицина
     URL:        http://k.img.com.ua/rss/ru/tech.xml
     IsEnabled:  true
     ID:         3
-  - Name:       Новости науки и техники - Информ-ЮА
+  - Name:       Информ-UA
     URL:        https://inform-ua.info/feed/rss/science
     IsEnabled:  true
     ID:         4
-  - Name:       Наука и технологии - Факты
+  - Name:       Факты-UA
     URL:        https://fakty.ua/rss_feed/science
     IsEnabled:  true
     ID:         5
-  - Name:       Технологии - Подробности
+  - Name:       Подробности
     URL:        http://podrobnosti.ua/rss/feed/?category=tehno
     IsEnabled:  true
     ID:         6
-  - Name:       Top news - ЛІГА.Tech
+  - Name:       ЛІГА.Tech - Top news
     URL:        https://www.liga.net/tech/top/rss.xml
     IsEnabled:  true
     ID:         7
-  - Name:       All news - ЛІГА.Tech
+  - Name:       ЛІГА.Tech - All news
     URL:        https://www.liga.net/tech/all/rss.xml
     IsEnabled:  true
     ID:         8
-  - Name:       Новости ИТ - ITnews
+  - Name:       ITnews
     URL:        http://itnews.com.ua/export/all.rss
     IsEnabled:  true
     ID:         9
