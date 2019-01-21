@@ -200,4 +200,5 @@ func getNewsNameById(id int64) string {
 			return news.Name
 		}
 	}
+	return fmt.Sprintf("news #v", id)
 }
