@@ -50,8 +50,8 @@ func getMessageDescription(description string) string {
 		}
 	}
 
-	if i := strings.Index(description, "<!CDATA["); i != -1 {
-		if j := strings.Index(description, "]>"); j != -1 {
+	if i := strings.Index(description, "<![CDATA["); i != -1 {
+		if j := strings.Index(description, "]]>"); j != -1 {
 			description = description[i+8 : j-1]
 		}
 	}
