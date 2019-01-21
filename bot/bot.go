@@ -67,7 +67,7 @@ func RunBot(env *Env) {
 		if command == List {
 			msg.Text = generateNewsSubscriptionList(chatId)
 		} else if command == Help || command == Start {
-			msg.Text = "It's " + configs.ProjectName + "\nType /list to view news list to subscribe on."
+			msg.Text = "It's " + configs.ProjectName + ".\nType /list to view news list to subscribe on."
 		} else if newsId, err := validateCommand(command, Subscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
 			msg.Text = subscribe(chatId, newsId) + "\n\n" + generateNewsSubscriptionList(chatId)
 		} else if newsId, err := validateCommand(command, Unsubscribe); !BotEnv.Logger.HandleError(err) && newsId > 0 {
