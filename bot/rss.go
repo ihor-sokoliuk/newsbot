@@ -35,10 +35,21 @@ func readRssNews(newsRssUrl string) (*PieceOfNews, error) {
 
 // TODO: Improve formatting description for all types of news rss
 func getMessageDescription(description string) string {
-
-	description = strings.Replace(description, "\r\n\r\n", "\r\n", -1)
-	description = strings.Replace(description, "\r\r", "\r", -1)
-	description = strings.Replace(description, "\n\n", "\n", -1)
+	i := strings.Index(description, "\r\n\r\n")
+	for i >= 0 {
+		description = strings.Replace(description, "\r\n\r\n", "\r\n", -1)
+		i = strings.Index(description, "\r\n\r\n")
+	}
+	i = strings.Index(description, "\r\r")
+	for i >= 0 {
+		description = strings.Replace(description, "\r\r", "\r", -1)
+		i = strings.Index(description, "\r\r")
+	}
+	i = strings.Index(description, "\n\n")
+	for i >= 0 {
+		description = strings.Replace(description, "\n\n", "\n", -1)
+		i = strings.Index(description, "\n\n")
+	}
 
 	if i := strings.Index(description, "'>"); i != -1 {
 		description = description[i+2:]
@@ -52,7 +63,7 @@ func getMessageDescription(description string) string {
 
 	if i := strings.Index(description, "<![CDATA["); i != -1 {
 		if j := strings.Index(description, "]]>"); j != -1 {
-			description = description[i+8 : j-1]
+			description = description[i+9 : j-1]
 		}
 	}
 
