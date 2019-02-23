@@ -1,31 +1,31 @@
-Token: {TOKEN}
+token:  {TOKEN}
 
-NewsList:
-  - Name:       24 Канал
-    URL:        https://24tv.ua/rss/tag/1792.xml
-    IsEnabled:  true
-    ID:         1
-  - Name:       ЛІГА.Новости
-    URL:        https://www.liga.net/news/top/rss.xml
-    IsEnabled:  true
-    ID:         2
-  - Name:       Корреспондент
-    URL:        http://k.img.com.ua/rss/ru/events.xml
-    IsEnabled:  true
-    ID:         3
-  - Name:       Информ-UA
-    URL:        https://inform-ua.info/feed/rss/editors-choice
-    IsEnabled:  true
-    ID:         4
-  - Name:       Украинская правда
-    URL:        https://www.pravda.com.ua/rus/rss/view_mainnews/
-    IsEnabled:  false
-    ID:         5
-  - Name:       РБК-Украина
-    URL:        https://www.rbc.ua/static/rss/ukrnet.strong.rus.rss.xml
-    IsEnabled:  true
-    ID:         6
-  - Name:       Факты-UA
-    URL:        https://fakty.ua/rss_feed/ukraina
-    IsEnabled:  true
-    ID:         7
+rssNewsList:
+  - name:       24 Канал
+    url:        https://24tv.ua/rss/tag/1792.xml
+    isEnabled:  true
+    id:         1
+  - name:       ЛІГА.Новости
+    url:        https://www.liga.net/news/top/rss.xml
+    isEnabled:  true
+    id:         2
+  - name:       Корреспондент
+    url:        http://k.img.com.ua/rss/ru/events.xml
+    isEnabled:  true
+    id:         3
+  - name:       Информ-UA
+    url:        https://inform-ua.info/feed/rss/editors-choice
+    isEnabled:  true
+    id:         4
+  - name:       Украинская правда
+    url:        https://www.pravda.com.ua/rus/rss/view_mainnews/
+    isEnabled:  true
+    id:         5
+  - name:       РБК-Украина
+    url:        https://www.rbc.ua/static/rss/ukrnet.strong.rus.rss.xml
+    isEnabled:  true
+    id:         6
+  - name:       Факты-UA
+    url:        https://fakty.ua/rss_feed/ukraina
+    isEnabled:  false
+    id:         7

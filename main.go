@@ -1,14 +1,15 @@
 package main
 
 import (
+	"io/ioutil"
+	"os"
+	"strings"
+
 	"github.com/ihor-sokoliuk/newsbot/bot"
 	"github.com/ihor-sokoliuk/newsbot/configs"
 	"github.com/ihor-sokoliuk/newsbot/database"
 	"github.com/ihor-sokoliuk/newsbot/logs"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"os"
-	"strings"
 )
 
 func main() {

@@ -3,20 +3,23 @@ package logs
 import (
 	"bytes"
 	"fmt"
-	consts "github.com/ihor-sokoliuk/newsbot/configs"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
+
+	consts "github.com/ihor-sokoliuk/newsbot/configs"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+// NewsBotLogger represents a logger for News Bot
 type NewsBotLogger struct {
 	log.Logger
 }
 
+// NewLogger creates a default logger
 func NewLogger(prefix string) *log.Logger {
 	fileRotation := &lumberjack.Logger{
 		Filename:   consts.ProjectName + ".log",
@@ -29,6 +32,7 @@ func NewLogger(prefix string) *log.Logger {
 	return log.New(mw, prefix, log.Flags())
 }
 
+// HandleError logs an error message
 func (logger *NewsBotLogger) HandleError(err error, args ...interface{}) (wasError bool) {
 	if err != nil {
 		// notice that we're using 1, so it will actually log the where
@@ -44,6 +48,7 @@ func (logger *NewsBotLogger) HandleError(err error, args ...interface{}) (wasErr
 	return wasError
 }
 
+// HandlePanic logs a panic and then panics
 func (logger *NewsBotLogger) HandlePanic(err error, args ...interface{}) {
 	if err != nil {
 		pc, fn, line, _ := runtime.Caller(1)
@@ -52,6 +57,7 @@ func (logger *NewsBotLogger) HandlePanic(err error, args ...interface{}) {
 	}
 }
 
+// Info logs an info message
 func (logger *NewsBotLogger) Info(msg string, args ...interface{}) {
 	pc, fn, line, _ := runtime.Caller(1)
 	logger.Println(fmt.Sprintf("[INFO]   %s:%d in %s\t%v", cutFilePath(fn), line, cutMethodPath(runtime.FuncForPC(pc).Name()), msg))
@@ -69,7 +75,7 @@ func cutMethodPath(method string) string {
 	return method[strings.LastIndex(method, "/")+1:]
 }
 
-// Get goroutine ID
+// getGID retruns goroutine ID
 func getGID() uint64 {
 	b := make([]byte, 64)
 	b = b[:runtime.Stack(b, false)]

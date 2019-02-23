@@ -1,43 +1,43 @@
-Token: {TOKEN}
+token:  {TOKEN}
 
-NewsList:
-  - Name:       Корреспондент - Гаджеты
-    URL:        http://k.img.com.ua/rss/ru/gadgets.xml
-    IsEnabled:  true
-    ID:         1
-  - Name:       Корреспондент - Интернет и IT
-    URL:        http://k.img.com.ua/rss/ru/web.xml
-    IsEnabled:  true
-    ID:         2
-  - Name:       Корреспондент - Наука и медицина
-    URL:        http://k.img.com.ua/rss/ru/tech.xml
-    IsEnabled:  true
-    ID:         3
-  - Name:       Информ-UA
-    URL:        https://inform-ua.info/feed/rss/science
-    IsEnabled:  true
-    ID:         4
-  - Name:       Факты-UA
-    URL:        https://fakty.ua/rss_feed/science
-    IsEnabled:  true
-    ID:         5
-  - Name:       Подробности
-    URL:        http://podrobnosti.ua/rss/feed/?category=tehno
-    IsEnabled:  true
-    ID:         6
-  - Name:       ЛІГА.Tech - Top news
-    URL:        https://www.liga.net/tech/top/rss.xml
-    IsEnabled:  true
-    ID:         7
-  - Name:       ЛІГА.Tech - All news
-    URL:        https://www.liga.net/tech/all/rss.xml
-    IsEnabled:  true
-    ID:         8
-  - Name:       ITnews
-    URL:        http://itnews.com.ua/export/all.rss
-    IsEnabled:  true
-    ID:         9
-  - Name:       IT World
-    URL:        https://www.it-world.ru/lenta/?rss=Y
-    IsEnabled:  true
-    ID:         10
+rssNewsList:
+  - name:       Корреспондент - Гаджеты
+    url:        http://k.img.com.ua/rss/ru/gadgets.xml
+    isEnabled:  true
+    id:         1
+  - name:       Корреспондент - Интернет и IT
+    url:        http://k.img.com.ua/rss/ru/web.xml
+    isEnabled:  true
+    id:         2
+  - name:       Корреспондент - Наука и медицина
+    url:        http://k.img.com.ua/rss/ru/tech.xml
+    isEnabled:  true
+    id:         3
+  - name:       Информ-UA
+    url:        https://inform-ua.info/feed/rss/science
+    isEnabled:  true
+    id:         4
+  - name:       Факты-UA
+    url:        https://fakty.ua/rss_feed/science
+    isEnabled:  false
+    id:         5
+  - name:       Подробности
+    url:        http://podrobnosti.ua/rss/feed/?category=tehno
+    isEnabled:  true
+    id:         6
+  - name:       ЛІГА.Tech - Top news
+    url:        https://www.liga.net/tech/top/rss.xml
+    isEnabled:  true
+    id:         7
+  - name:       ЛІГА.Tech - All news
+    url:        https://www.liga.net/tech/all/rss.xml
+    isEnabled:  true
+    id:         8
+  - name:       ITnews
+    url:        http://itnews.com.ua/export/all.rss
+    isEnabled:  true
+    id:         9
+  - name:       IT World
+    url:        https://www.it-world.ru/lenta/?rss=Y
+    isEnabled:  true
+    id:         10

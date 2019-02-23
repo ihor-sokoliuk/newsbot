@@ -2,21 +2,22 @@ package bot
 
 import (
 	"fmt"
-	"github.com/grokify/html-strip-tags-go"
-	"github.com/mmcdole/gofeed"
 	"strings"
 	"time"
+
+	strip "github.com/grokify/html-strip-tags-go"
+	"github.com/mmcdole/gofeed"
 )
 
-type PieceOfNews struct {
+type pieceOfNews struct {
 	Title       string
 	Message     string
-	Url         string
+	URL         string
 	PublishDate *time.Time
 }
 
-func readRssNews(newsRssUrl string) (*PieceOfNews, error) {
-	feed, err := gofeed.NewParser().ParseURL(newsRssUrl)
+func readRssNews(newsRssURL string) (*pieceOfNews, error) {
+	feed, err := gofeed.NewParser().ParseURL(newsRssURL)
 	if err != nil {
 		return nil, err
 	}
@@ -24,9 +25,9 @@ func readRssNews(newsRssUrl string) (*PieceOfNews, error) {
 	if len(feed.Items) > 0 {
 		lastNews := feed.Items[0]
 		if lastNews.PublishedParsed != nil {
-			return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, lastNews.PublishedParsed}, nil
+			return &pieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, lastNews.PublishedParsed}, nil
 		} else if feed.UpdatedParsed != nil {
-			return &PieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, feed.UpdatedParsed}, nil
+			return &pieceOfNews{lastNews.Title, lastNews.Description, lastNews.Link, feed.UpdatedParsed}, nil
 		}
 	}
 
@@ -94,7 +95,7 @@ func getMessageDescription(description string) string {
 	return description
 }
 
-func (n PieceOfNews) String() string {
+func (n pieceOfNews) String() string {
 	// Message with news
-	return fmt.Sprintf("*%v*\n\n%v\n[Read more...](%v)", n.Title, getMessageDescription(n.Message), n.Url)
+	return fmt.Sprintf("*%v*\n\n%v\n[Read more...](%v)", n.Title, getMessageDescription(n.Message), n.URL)
 }

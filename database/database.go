@@ -2,25 +2,27 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
-	consts "github.com/ihor-sokoliuk/newsbot/configs"
-	_ "github.com/mattn/go-sqlite3"
 	"strings"
 	"time"
+
+	consts "github.com/ihor-sokoliuk/newsbot/configs"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-const ChannelSubscriptionsTableName = "ChannelSubscriptions"
-const NewsHistoryTableName = "NewsHistory"
+const channelSubscriptionsTableName = "ChannelSubscriptions"
+const newsHistoryTableName = "NewsHistory"
 
+// NewsBotDatabase represents a SQL Database
 type NewsBotDatabase struct {
 	sql.DB
 }
 
+// NewDatabase creates a sandart database instance
 func NewDatabase() (*NewsBotDatabase, error) {
 	db, err := sql.Open("sqlite3", consts.DatabaseFileName)
 	sqlStmt := `
-	CREATE TABLE IF NOT EXISTS ` + ChannelSubscriptionsTableName + ` (
+	CREATE TABLE IF NOT EXISTS ` + channelSubscriptionsTableName + ` (
 		ID INTEGER PRIMARY KEY, 
 		ChatID INTEGER, 
 		NewsID INTEGER
@@ -32,7 +34,7 @@ func NewDatabase() (*NewsBotDatabase, error) {
 	}
 
 	sqlStmt = `
-	CREATE TABLE IF NOT EXISTS ` + NewsHistoryTableName + ` (
+	CREATE TABLE IF NOT EXISTS ` + newsHistoryTableName + ` (
 		NewsID INTEGER PRIMARY KEY,
 		LastPublish TEXT
 	)
@@ -45,6 +47,7 @@ func NewDatabase() (*NewsBotDatabase, error) {
 	return &NewsBotDatabase{*db}, nil
 }
 
+// GetChannelSubscriptions returns a list of news that user was subscribed on
 func GetChannelSubscriptions(db *NewsBotDatabase, chatID int64) ([]int64, error) {
 	rows, err := db.Query(fmt.Sprintf(`
 		SELECT 
@@ -52,22 +55,22 @@ func GetChannelSubscriptions(db *NewsBotDatabase, chatID int64) ([]int64, error)
 		FROM %v 
 		WHERE 
 			ChatID = %v`,
-		ChannelSubscriptionsTableName, chatID))
+		channelSubscriptionsTableName, chatID))
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	var newsId int64
+	var newsID int64
 	var resultList = make([]int64, 0)
 
 	for rows.Next() {
-		err = rows.Scan(&newsId)
+		err = rows.Scan(&newsID)
 		if err != nil {
 			return nil, err
 		}
-		resultList = append(resultList, newsId)
+		resultList = append(resultList, newsID)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -77,6 +80,7 @@ func GetChannelSubscriptions(db *NewsBotDatabase, chatID int64) ([]int64, error)
 	return resultList, nil
 }
 
+// GetNewsSubscribers returns a list of users that were subscribed on a news
 func GetNewsSubscribers(db *NewsBotDatabase, newsID int64) ([]int64, error) {
 	rows, err := db.Query(fmt.Sprintf(`
 		SELECT 
@@ -84,7 +88,7 @@ func GetNewsSubscribers(db *NewsBotDatabase, newsID int64) ([]int64, error) {
 		FROM %v 
 		WHERE 
 			NewsID = %v`,
-		ChannelSubscriptionsTableName, newsID))
+		channelSubscriptionsTableName, newsID))
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +113,7 @@ func GetNewsSubscribers(db *NewsBotDatabase, newsID int64) ([]int64, error) {
 	return resultList, nil
 }
 
+// AddNewsSubscriber subscribes a user on a news
 func AddNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
 	_, err := db.Exec(fmt.Sprintf(`
 		INSERT 
@@ -116,10 +121,11 @@ func AddNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
 			(ChatID, NewsID) 
 		values 
 			(%v, %v)`,
-		ChannelSubscriptionsTableName, chatID, newsID))
+		channelSubscriptionsTableName, chatID, newsID))
 	return err
 }
 
+// DeleteNewsSubscriber unsubscribes a user from a news
 func DeleteNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
 	_, err := db.Exec(fmt.Sprintf(`
 		DELETE 
@@ -127,11 +133,58 @@ func DeleteNewsSubscriber(db *NewsBotDatabase, chatID, newsID int64) error {
 		WHERE 
 			ChatID = %v AND 
 			NewsID = %v`,
-		ChannelSubscriptionsTableName, chatID, newsID))
+		channelSubscriptionsTableName, chatID, newsID))
 	return err
 }
 
-func RowsCount(db *NewsBotDatabase, query string) (int, error) {
+// IfUserSubscribedOnNews checks if user was subscribed on a news
+func IfUserSubscribedOnNews(db *NewsBotDatabase, chatID, newsID int64) (bool, error) {
+	count, err := rowsCount(db, fmt.Sprintf(`
+		SELECT 
+			COUNT(*) 
+		FROM %v 
+		WHERE 
+			ChatID = %v AND 
+			NewsID = %v`,
+		channelSubscriptionsTableName, chatID, newsID))
+	if err == nil {
+		return count > 0, nil
+	}
+	return false, err
+}
+
+// GetLastPublishOfNews returns last publish time of a news
+func GetLastPublishOfNews(db *NewsBotDatabase, newsID int64) (*time.Time, error) {
+	var dt string
+	rows := db.QueryRow(fmt.Sprintf(`
+		SELECT 
+			LastPublish 
+		FROM %v 
+		WHERE 
+			NewsID = %v`,
+		newsHistoryTableName, newsID))
+	err := rows.Scan(&dt)
+	if err == nil {
+		lastPublish, err := time.Parse(time.RFC3339, dt)
+		return &lastPublish, err
+	}
+	lastPublish := time.Now().Add(-time.Hour * 24)
+	return &lastPublish, fmt.Errorf("No last pub date for news #%v", newsID)
+}
+
+// SaveLastPublishOfNews save last publish time of a news
+func SaveLastPublishOfNews(db *NewsBotDatabase, newsID int64, lastPublish time.Time) error {
+	_, err := db.Exec(fmt.Sprintf(`
+		REPLACE
+		INTO %v 
+			(NewsID, LastPublish) 
+		values 
+			(%v, "%v")`,
+		newsHistoryTableName, newsID, lastPublish.Format(time.RFC3339)))
+	return err
+}
+
+func rowsCount(db *NewsBotDatabase, query string) (int, error) {
 	var count int
 	row := db.QueryRow(query)
 	err := row.Scan(&count)
@@ -141,49 +194,4 @@ func RowsCount(db *NewsBotDatabase, query string) (int, error) {
 		return 0, nil
 	}
 	return -1, err
-}
-
-func IfUserSubscribedOnNews(db *NewsBotDatabase, chatID, newsID int64) (bool, error) {
-	count, err := RowsCount(db, fmt.Sprintf(`
-		SELECT 
-			COUNT(*) 
-		FROM %v 
-		WHERE 
-			ChatID = %v AND 
-			NewsID = %v`,
-		ChannelSubscriptionsTableName, chatID, newsID))
-	if err == nil {
-		return count > 0, nil
-	}
-	return false, err
-}
-
-func GetLastPublishOfNews(db *NewsBotDatabase, newsID int64) (*time.Time, error) {
-	var dt string
-	rows := db.QueryRow(fmt.Sprintf(`
-		SELECT 
-			LastPublish 
-		FROM %v 
-		WHERE 
-			NewsID = %v`,
-		NewsHistoryTableName, newsID))
-	err := rows.Scan(&dt)
-	if err == nil {
-		lastPublish, err := time.Parse(time.RFC3339, dt)
-		return &lastPublish, err
-	} else {
-		lastPublish := time.Now().Add(-time.Hour * 24)
-		return &lastPublish, errors.New(fmt.Sprintf("No last pub date for news #%v", newsID))
-	}
-}
-
-func SaveLastPublishOfNews(db *NewsBotDatabase, newsId int64, lastPublish time.Time) error {
-	_, err := db.Exec(fmt.Sprintf(`
-		REPLACE
-		INTO %v 
-			(NewsID, LastPublish) 
-		values 
-			(%v, "%v")`,
-		NewsHistoryTableName, newsId, lastPublish.Format(time.RFC3339)))
-	return err
 }

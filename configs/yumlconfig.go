@@ -1,13 +1,15 @@
 package configs
 
+// RssNews is a struct to contain an info about News RSS page
 type RssNews struct {
-	Name      string `Name`
-	URL       string `URL`
-	IsEnabled bool   `IsEnabled`
-	ID        int64  `ID`
+	Name      string `yaml:"name"`
+	URL       string `yaml:"url"`
+	IsEnabled bool   `yaml:"isEnabled"`
+	ID        int64  `yaml:"id"`
 }
 
+// Configs struct contains all the program configuration
 type Configs struct {
-	Token   string    `Token`
-	NewsRss []RssNews `NewsList`
+	Token       string    `yaml:"token"`
+	RssNewsList []RssNews `yaml:"rssNewsList"`
 }
