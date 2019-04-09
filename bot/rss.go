@@ -97,5 +97,5 @@ func getMessageDescription(description string) string {
 
 func (n pieceOfNews) String() string {
 	// Message with news
-	return fmt.Sprintf("*[%v](%v)*\n\n%v\n", n.Title, n.URL, getMessageDescription(n.Message))
+	return fmt.Sprintf("[%v](%v)\n\n%v\n", n.Title, n.URL, getMessageDescription(n.Message))
 }
