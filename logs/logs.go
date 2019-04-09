@@ -64,7 +64,7 @@ func (logger *NewsBotLogger) Info(msg string, args ...interface{}) {
 }
 
 func cutFilePath(fn string) string {
-	i := strings.Index(fn, consts.ProjectName)
+	i := strings.Index(fn, "newsbot")
 	if i > 0 {
 		return fn[i:]
 	}
