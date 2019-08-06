@@ -71,7 +71,7 @@ echo "---=== Stage 4 ===---"
 echo "Copying all the files..."
 mkdir -p ${program_workdir}
 cp ${program_name} ${program_workdir}
-sed -i 's/{TOKEN}/'${telegram_bot_token}'/g' ${program_name}.yml
+sed -i 's/{ TOKEN }/'${telegram_bot_token}'/g' ${program_name}.yml
 cp ${program_name}.yml ${program_workdir}
 if [[ "$need_backup" == true ]]
 then
